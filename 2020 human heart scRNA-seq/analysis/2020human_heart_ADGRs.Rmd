@@ -1,0 +1,104 @@
+---
+title: "2020human heart scRNAseq"
+author: Heli Xu
+date: '2022-05-02'
+output: 
+ html_document:
+    theme: united
+    code_folding: hide
+    df_print: kable
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(Seurat)
+library(SeuratDisk)
+```
+
+## 1. Raw data processing
+Raw data from human heart scRNA-Seq was downloaded from [heartcellatlas](https://www.heartcellatlas.org/), published with the paper in [Nature](https://www.nature.com/articles/s41586-020-2797-4#Sec11). Dataset includes ~440k cells from different region of the human heart, with multiple processing methods and batches. In the paper, analysis was done with Scanpy in Python, and the object is in .h5ad format. Here, we first used SeuratDisk to convert .h5ad to a seurat object. The object includes counts, reduction (PCA, UMAP) and metadata with cell types from their analysis and the processing and sample info, very thorough! Since analysis involves batch aligning in addition to normal integration (SCTransform), we are not reproducing all the analysis, and just do visualization for ADGRs in different cell types for now.     
+
+
+## 2. Exploring ADGRs 
+
+First we look at ADGRs distribution in different cell types in human heart. 
+```{r, cache=TRUE}
+load()
+##ADGRC1, 2,3 not found
+
+FeaturePlot(human_heart_normalized, 
+            reduction = "umap", 
+            features = c("ADGRD1","ADGRD3",
+                         "ADGRE1","ADGRE2", "ADGRE3",
+                         "ADGRE4", "ADGRE5"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+#ADGRD3, ADGRE4 not found
+
+FeaturePlot(human_heart_normalized, 
+            reduction = "umap", 
+            features = c("ADGRF1","ADGRF2", "ADGRF3",
+                         "ADGRF4", "ADGRF5"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+FeaturePlot(human_heart_normalized, 
+            reduction = "umap", 
+            features = c("ADGRG1","ADGRG2", "ADGRG3",
+                         "ADGRG4", "ADGRG5","ADGRG6","ADGRG7"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+FeaturePlot(human_heart_normalized, 
+            reduction = "umap", 
+            features = c("ADGRL1","ADGRL2", "ADGRL3",
+                         "ADGRL4", "ADGRV1"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+```
+
+Apart from a few ADGRs not detected in the datasets, most of the ADGRs express in multiple cell types. For the ones with higher expression levels, we use violin plots to explore the distribution of expression levels in each cell type. (With the ones that only show dots but no violin shapes, there are usually a lot more dots at zero)
+```{r, cache=TRUE}
+VlnPlot(human_heart_normalized, features = c("ADGRA2","ADGRA3","ADGRB3"))
+
+VlnPlot(human_heart_normalized, pt.size = 0, features = c("ADGRD1", "ADGRE2", "ADGRE5"))
+
+VlnPlot(human_heart_normalized, features = c("ADGRF3", "ADGRF5"))
+
+VlnPlot(human_heart_normalized, features = c("ADGRG1","ADGRG2","ADGRG5", "ADGRG6"))
+
+VlnPlot(human_heart_normalized, features = c("ADGRL1", "ADGRL2", "ADGRL3", "ADGRL4"))
+```
+
+Among the ones present in ventricular cardiomyocte, we could subset this cell type out of the seurat object and explore it further. The dataset includes sub-populations of each cell type, under cell_states in metadata. Here we use the cell_states to relabel idents for visualization.
+
+```{r}
+
+DimPlot(human_heart_vCM, reduction = "umap")
+```
+
+We can use the original reduction info to plot the subsets of CM, not good cluster separation, but suffice to say vCM1 has the largest number of cells, and vCM4 and vCM5 have quite fewer. 
+
+```{r, cache=TRUE}
+DefaultAssay(human_heart_vCM) <- "RNA"
+
+
+##Featureplot doesn't do cluster very well, despite the labels, use vlnplot here 
+VlnPlot(human_heart_vCM_normalized, features = c("ADGRA2","ADGRA3","ADGRB3"))
+
+VlnPlot(human_heart_vCM_normalized, features = c("ADGRD1","ADGRF3","ADGRF5"))
+
+VlnPlot(human_heart_vCM_normalized, features = c("ADGRG1","ADGRG2","ADGRG5", "ADGRG6"))
+
+VlnPlot(human_heart_vCM_normalized, features = c("ADGRL1", "ADGRL2", "ADGRL3", "ADGRL4"))
+```
