@@ -132,6 +132,8 @@ TAC_integrated <- FindNeighbors(object = TAC_integrated,
 
 save(TAC_integrated, file = "data/clustered_integrated_TAC.rdata")
 
+load("data/clustered_integrated_TAC.rdata")
+
 DimPlot(TAC_integrated, reduction = "umap", label = TRUE, split.by = "sample")
 #no segregation of clusters by samples
 
@@ -141,6 +143,24 @@ DefaultAssay(TAC_integrated) <- "RNA"
 
 # Normalize RNA data for visualization purposes
 TAC_integrated <- NormalizeData(TAC_integrated, verbose = FALSE)
+
+##briefly explore cell types, since it's not included in the object/metadata
+#markers included in supplemental data of the paper
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Cd14","Itgam","Cd68", "Ly6c2"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Cd3d","Cd4","Cd8a", "Cd19"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+##so we have half myeloid half lymphoid cells 
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -160,6 +180,7 @@ FeaturePlot(TAC_integrated,
             label = TRUE)
 #very little
 #not found: Adgra1, Adgrb3, Adgrc1, Adgrc2, Adgrc3
+#Adgrb2 very little
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -174,9 +195,19 @@ FeaturePlot(TAC_integrated,
 #Adgre1: c2, C1, C15, C10some
 #Adgre4: C10, C17
 
-VlnPlot(TAC_integrated, idents=c(1,2,10, 15),features= "Adgre1", split.by = "sample")
-VlnPlot(TAC_integrated, idents=c(1, 2, 10, 17),features= "Adgre4", split.by = "sample")
-VlnPlot(TAC_integrated, features= "Adgre5", split.by = "sample")
+colors_in_use <- c("grey", "black", "orange", "red")
+idents_in_use <- c(1,2,9,10,15,17,22,23)
+VlnPlot(TAC_integrated, cols = colors_in_use, 
+        idents= idents_in_use, features= "Adgre1", split.by = "sample")
+
+VlnPlot(TAC_integrated, cols = colors_in_use,
+        idents= idents_in_use, features= "Adgre4", split.by = "sample")
+
+VlnPlot(TAC_integrated, cols = colors_in_use, pt.size=0, features= "Adgre5", split.by = "sample")
+
+##to distinguish ccr2+/ccr2- macrophages
+VlnPlot(TAC_integrated, pt.size = 0, idents = c(1,2,9,10,15,17,22,23), features = "Ccr2")
+##seems like Adgre1(F4/80) and Adgre4 differentially expressed in different subsets of macrophages
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -197,8 +228,8 @@ FeaturePlot(TAC_integrated,
             label = TRUE)
 #not found: Adgrg2, Adgrg4,Adgrg7
 #others not much
-VlnPlot(TAC_integrated, idents=c(5,12,16),features= "Adgrg5", split.by = "sample")
-VlnPlot(TAC_integrated, idents=2,features= "Adgrg6", split.by = "sample")
+VlnPlot(TAC_integrated, idents= c(2,11,12), features= "Adgrg5", split.by = "sample")
+VlnPlot(TAC_integrated, features= "Adgrg6")
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -208,4 +239,5 @@ FeaturePlot(TAC_integrated,
             min.cutoff = 'q10', 
             label = TRUE)
 #not much
-VlnPlot(TAC_integrated, idents=c(5,6,13),features= "Adgrl1", split.by = "sample")
+VlnPlot(TAC_integrated, features= "Adgrl1")
+VlnPlot(TAC_integrated, idents=c(1,2,5,6,12,13), features= "Adgrl1", split.by = "sample")
