@@ -32,19 +32,97 @@ DimPlot(merged_TAC_no_integ, label = TRUE, reduction = "umap")
 
 save(merged_TAC_no_integ, file = "data/merged_pools_TAC_no_integ.rdata")
 
+load("data/merged_pools_TAC_no_integ.rdata")
+
+
 ###explore cell types###mostly interested in macrophages
 DefaultAssay(merged_TAC_no_integ) <- "RNA"
 
 FeaturePlot(merged_TAC_no_integ, 
             reduction = "umap", 
-            features = c("Itgam","Cd68", "Ccr2","Timd4"), 
+            features = c("Cd3g","Cd4","Cd8a", "Cd19","Cd79a"), 
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+#T cell B cell
 
 FeaturePlot(merged_TAC_no_integ, 
             reduction = "umap", 
-            features = c("Cd3d","Cd4","Cd8a", "Cd19"), 
+            features = c("Itgam","Cd68", "Mertk","Itgax"), 
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+#mono/macrophages
+
+FeaturePlot(merged_TAC_no_integ, 
+            reduction = "umap", 
+            features = c("Cd14","Fcgr1"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##more mono/macrophages
+
+FeaturePlot(merged_TAC_no_integ, 
+            reduction = "umap", 
+            features = "Ly6g", 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+#neutrophils
+
+FeaturePlot(merged_TAC_no_integ, 
+            reduction = "umap", 
+            features = "Klrb1c", 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##NK cells
+
+FeaturePlot(merged_TAC_no_integ, 
+            reduction = "umap", 
+            features = c("Timd4","Lyve1", "Cd163","Ccl24"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##resident macrophages
+
+FeaturePlot(merged_TAC_no_integ, 
+            reduction = "umap", 
+            features = c("Ccr2", "H2-DMb1"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##monocyte-derived macrophages (MoMF, recruited)
+
+FeaturePlot(merged_TAC_no_integ, 
+            reduction = "umap", 
+            features = c("Ly6c2","Plac8"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##monocytes
+
+##among monocyte/macrophages, adgre family has most expression
+##cluster16 has low cd45 expression, but we'll throw it in there just incase 
+VlnPlot(merged_TAC_no_integ, 
+        features = "Adgre5", 
+        pt.size = 0)
+
+VlnPlot(merged_TAC_no_integ, 
+        idents = c(0,1,2,3,5,9,11,13,16,17,23,25), 
+        features = c("Adgre1","Adgre4"), 
+        pt.size = 0)
+
+##cross referencing resident macrophages/moMF
+VlnPlot(merged_TAC_no_integ, 
+        idents = c(0,1,2,3,5,9,11,13,16,17,23,25), 
+        features = c("Ccr2"), pt.size = 0)
+
+VlnPlot(merged_TAC_no_integ, 
+        idents = c(0,1,2,3,5,9,11,13,17,23,25), 
+        features = c("Timd4"), pt.size = 0)
+
+
+##Adgrg6, Adgrl1 has some expression in macrophages, T cells respectively,
+#quite low, violin plot not much showing up, 
+##could be because of the lack of integration and filtering of double-hashtaged
