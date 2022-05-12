@@ -1,0 +1,76 @@
+library(dplyr)
+library(Seurat)
+
+library(tidyverse)
+library(data.table)
+
+
+###load raw data and cell info (metadata)##
+
+counts <- fread("raw/TAC_raw_umi_matrix.csv")
+
+rownames(counts) <- counts$V1
+
+counts$V1 <- NULL
+##800m, doable, but stuck at next step
+
+TAC_CM_NMCC <- CreateSeuratObject(counts, project = "TAC CM NMCC",
+                                  min.cells =3, min.features  = 200)
+##too big, although the object turns out to be 400m
+
+load("data/TAC_CM_NMCC.rdata")
+
+cell_info <- read.table("raw/GSE120064_TAC_clean_cell_info_summary.txt", header = T)
+
+####metadata wrangling####
+
+metadata <- TAC_CM_NMCC@meta.data %>% 
+  rownames_to_column(var = "cell_id")
+
+cell_info <- cell_info %>% 
+  rename(cell_id = CellID)
+
+metadata_full <- metadata %>% 
+  left_join(cell_info, by = "cell_id") %>% 
+  column_to_rownames("cell_id")
+##keep the rownames as cell_id
+
+
+TAC_CM_NMCC@meta.data <- metadata_full
+
+
+
+####Normalization without integration
+TAC_no_integ <- NormalizeData(TAC_CM_NMCC) %>% 
+  FindVariableFeatures(selection.method = "vst", 
+                       nfeatures = 2000, verbose = FALSE) %>% 
+  ScaleData() %>% 
+  RunPCA() %>% 
+  FindNeighbors(dims = 1:10) %>% 
+  FindClusters(resolution = 1) %>% 
+  RunUMAP(dim=1:20)
+
+DimPlot(TAC_no_integ, reduction = "umap", group.by = "condition")
+##some cluster seems only to show one condition, but paper used some housekeeping genes
+#to demonstrate minimal batch effects
+####Sctransform with integration cannot be performed 
+##because there're not enough S genes, g2m genes in the dataset somehow...
+
+##Visualization of clusters###
+Idents(TAC_no_integ) <- metadata_full$CellType
+##label whatever object you're plotting
+
+DimPlot(TAC_no_integ, reduction = "umap", label = T)
+
+###Explore ADGRs###
+
+DefaultAssay(TAC_no_integ) <- "RNA"
+
+FeaturePlot(TAC_no_integ, 
+            reduction = "umap", 
+            features = c("Adgra1","Adgra2","Adgra3",
+                         "Adgrb2","Adgrb3",
+                         "Adgrc1", "Adgrc2","Adgrc3"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
