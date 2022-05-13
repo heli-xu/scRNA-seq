@@ -55,8 +55,52 @@ TAC_no_integ <- NormalizeData(TAC_CM_NMCC) %>%
 DimPlot(TAC_no_integ, reduction = "umap", group.by = "condition")
 ##some cluster seems only to show one condition, but paper used some housekeeping genes
 #to demonstrate minimal batch effects
-####Sctransform with integration cannot be performed 
-##because there're not enough S genes, g2m genes in the dataset somehow...
+
+
+####Sctransform with integration ###
+
+load("data/cell_cycle_mouse.rdata")
+
+s_genes <- cell_cycle_markers %>%
+  dplyr::filter(phase == "S") %>%
+  pull("gene_name")
+
+g2m_genes <- cell_cycle_markers %>%
+  dplyr::filter(phase == "G2/M") %>%
+  pull("gene_name")
+
+
+split_TAC <- SplitObject(TAC_CM_NMCC, split.by = "condition")
+
+split_TAC <- split_TAC[c("0w","2w","5w","8w","11w")] %>%  
+  map(~.x %>% 
+        NormalizeData() %>% 
+        CellCycleScoring(g2m.features = g2m_genes, 
+                         s.features = s_genes) %>% 
+        SCTransform(verbose=FALSE))
+##took quite a few min to run
+
+integ_features <- SelectIntegrationFeatures(object.list = split_TAC, 
+                                            nfeatures = 3000) 
+
+# Prepare the SCT list object for integration
+split_TAC <- PrepSCTIntegration(object.list = split_TAC, 
+                                anchor.features = integ_features)
+
+# CCA: Find best buddies - can take a while to run
+integ_anchors <- FindIntegrationAnchors(object.list = split_TAC, 
+                                        normalization.method = "SCT", 
+                                        anchor.features = integ_features,
+                                        verbose=FALSE)
+##took 15min
+
+
+# Integrate across conditions
+TAC_integrated <- IntegrateData(anchorset = integ_anchors,
+                                normalization.method = "SCT",
+                                verbose=FALSE)
+#took ~1.5min
+
 
 ##Visualization of clusters###
 Idents(TAC_no_integ) <- metadata_full$CellType
