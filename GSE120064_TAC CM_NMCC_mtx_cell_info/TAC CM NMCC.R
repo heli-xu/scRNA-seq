@@ -16,6 +16,8 @@ counts$V1 <- NULL
 
 TAC_CM_NMCC <- CreateSeuratObject(counts, project = "TAC CM NMCC",
                                   min.cells =3, min.features  = 200)
+save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC.rdata")
+
 ##too big, although the object turns out to be 400m
 
 load("data/TAC_CM_NMCC.rdata")
