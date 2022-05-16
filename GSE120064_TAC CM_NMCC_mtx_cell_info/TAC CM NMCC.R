@@ -10,6 +10,7 @@ library(data.table)
 counts <- fread("raw/TAC_raw_umi_matrix.csv")
 
 rownames(counts) <- counts$V1
+#for matrix, rownames_to_column doesnt seem to work well
 
 counts$V1 <- NULL
 ##800m, doable, but stuck at next step
@@ -92,14 +93,14 @@ integ_anchors <- FindIntegrationAnchors(object.list = split_TAC,
                                         normalization.method = "SCT", 
                                         anchor.features = integ_features,
                                         verbose=FALSE)
-##took 15min
+##took quite long (15min for 8G RAM)
 
 
 # Integrate across conditions
 TAC_integrated <- IntegrateData(anchorset = integ_anchors,
                                 normalization.method = "SCT",
                                 verbose=FALSE)
-
+##cannot run with 8G RAM
 
 
 ##run normalization and umap for visualization
@@ -112,21 +113,59 @@ DimPlot(TAC_integrated, reduction = "umap", group.by = "condition")
 
 save(TAC_integrated, file = "data/TAC_integrarted.rdata")
 
-##Visualization of clusters###
-Idents(TAC_no_integ) <- metadata_full$CellType
+###Visualization of clusters####
+load("data/TAC_integrarted.rdata")
+
+metadata <- TAC_integrated@meta.data
+
+Idents(TAC_integrated) <- metadata$CellType
 ##label whatever object you're plotting
 
-DimPlot(TAC_no_integ, reduction = "umap", label = T)
+DimPlot(TAC_integrated, reduction = "umap", label = T)
 
 ###Explore ADGRs###
 
-DefaultAssay(TAC_no_integ) <- "RNA"
+DefaultAssay(TAC_integrated) <- "RNA"
 
-FeaturePlot(TAC_no_integ, 
+FeaturePlot(TAC_integrated, 
             reduction = "umap", 
-            features = c("Adgra1","Adgra2","Adgra3",
-                         "Adgrb2","Adgrb3",
-                         "Adgrc1", "Adgrc2","Adgrc3"), 
+            features = c("Gpr123","Gpr124","Gpr125",
+                         "Bai1","Bai2",
+                         "Cselr1", "Cselr2","Cselr3"), 
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+##somehow this paper doesn't use new names, but the old ones, 
+#so none of the adgrs showed up, had to search the gprs, and some other names
+#Gpr124 mainly in FB
+
+#VlnPlot(TAC_integrated, pt.size = 0, features = "Gpr124")
+#not much 
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Gpr133","Gpr144",
+                         "Emr1","Emr2", "Emr3",
+                         "Emr4", "Cd97"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+VlnPlot(TAC_integrated, pt.size = 0, features = "Emr1", split.by = "condition")
+##wk5 seems a bit upregulated in MP
+
+VlnPlot(TAC_integrated, pt.size = 0, features = "Cd97", split.by = "condition")
+##Wk5 seems upregulated in GN, but population is low 
+##a little bit same trend in MP
+
+##Emr4 not much
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Gpr110","Gpr111", "Gpr113",
+                         "Gpr115", "Gpr116"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+VlnPlot(TAC_integrated, pt.size = 0, features = "Gpr116", split.by = "condition")

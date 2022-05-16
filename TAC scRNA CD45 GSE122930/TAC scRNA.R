@@ -184,13 +184,13 @@ FeaturePlot(TAC_integrated,
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
-            features = c("Adgrd1","Adgrd3",
+            features = c("Adgrd1","Adgrd2",
                          "Adgre1","Adgre2", "Adgre3",
                          "Adgre4", "Adgre5"), 
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
-# not found: Adgrd1, Adgrd3, Adgre2, Adgre3
+# not found: Adgrd1, Adgrd3 (wrong--Adgrd2), Adgre2, Adgre3
 #Adgre5 all clusters
 #Adgre1: c2, C1, C15, C10some
 #Adgre4: C10, C17
