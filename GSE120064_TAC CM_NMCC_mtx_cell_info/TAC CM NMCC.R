@@ -40,7 +40,7 @@ metadata_full <- metadata %>%
 
 TAC_CM_NMCC@meta.data <- metadata_full
 
-
+save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC_metadata.rdata")
 
 ####Normalization without integration
 TAC_no_integ <- NormalizeData(TAC_CM_NMCC) %>% 
@@ -99,8 +99,18 @@ integ_anchors <- FindIntegrationAnchors(object.list = split_TAC,
 TAC_integrated <- IntegrateData(anchorset = integ_anchors,
                                 normalization.method = "SCT",
                                 verbose=FALSE)
-#took ~1.5min
 
+
+
+##run normalization and umap for visualization
+TAC_integrated <- RunPCA(object = TAC_integrated,verbose = FALSE) %>% 
+  RunUMAP(dims = 1:20,
+          reduction = "pca")
+
+
+DimPlot(TAC_integrated, reduction = "umap", group.by = "condition")
+
+save(TAC_integrated, file = "data/TAC_integrarted.rdata")
 
 ##Visualization of clusters###
 Idents(TAC_no_integ) <- metadata_full$CellType
