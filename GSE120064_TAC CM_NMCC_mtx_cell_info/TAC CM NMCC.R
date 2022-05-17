@@ -139,8 +139,8 @@ metadata %>%
   geom_bar() +
   scale_fill_manual(values = met.brewer("Renoir",8, direction = -1, type = "discrete"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-  theme(plot.title = element_text(hjust=0.5, face="bold")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        plot.title = element_text(hjust=0.5, face="bold")) +
   ggtitle("NCells")
 ##cell count 2000-3000, majority CM
 
