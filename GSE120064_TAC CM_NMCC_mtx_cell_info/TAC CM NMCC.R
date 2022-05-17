@@ -3,6 +3,7 @@ library(Seurat)
 
 library(tidyverse)
 library(data.table)
+library(MetBrewer)
 
 
 ###load raw data and cell info (metadata)##
@@ -113,15 +114,36 @@ DimPlot(TAC_integrated, reduction = "umap", group.by = "condition")
 
 save(TAC_integrated, file = "data/TAC_integrarted.rdata")
 
-###Visualization of clusters####
+####################################################################
+###Visualization of clusters###
 load("data/TAC_integrarted.rdata")
 
-metadata <- TAC_integrated@meta.data
+metadata <- TAC_integrated@meta.data 
 
-Idents(TAC_integrated) <- metadata$CellType
+##rearrange condition levels, for easier visualization
+metadata$condition <- factor(metadata$condition, levels = c("0w", "2w","5w","8w","11w"))
+
+#insert back to object
+TAC_integrated@meta.data <- metadata
+
 ##label whatever object you're plotting
+Idents(TAC_integrated) <- metadata$CellType
+
 
 DimPlot(TAC_integrated, reduction = "umap", label = T)
+
+##A little bit on cell count across different conditions
+#used met.brewer for color pallet 
+metadata %>% 
+  ggplot(aes(x=condition, fill=CellType)) +
+  geom_bar() +
+  scale_fill_manual(values = met.brewer("Renoir",8, direction = -1, type = "discrete"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(plot.title = element_text(hjust=0.5, face="bold")) +
+  ggtitle("NCells")
+##cell count 2000-3000, majority CM
+
 
 ###Explore ADGRs###
 
@@ -151,10 +173,21 @@ FeaturePlot(TAC_integrated,
             min.cutoff = 'q10', 
             label = TRUE)
 
-VlnPlot(TAC_integrated, pt.size = 0, features = "Emr1", split.by = "condition")
+#assign a pallet for violin plot
+color_timepoint <- met.brewer("Homer1", 5, direction = -1, type = "discrete")
+idents_to_use <- c("CM","MP","T","FB","EC","GN")
+
+#VlnPlot(TAC_integrated, pt.size = 0, features = "Gpr133")
+#not much
+
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        pt.size = 0, features = "Emr1", cols=color_timepoint,
+        split.by = "condition")
 ##wk5 seems a bit upregulated in MP
 
-VlnPlot(TAC_integrated, pt.size = 0, features = "Cd97", split.by = "condition")
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        pt.size = 0, features = "Cd97", cols=color_timepoint,
+        split.by = "condition")
 ##Wk5 seems upregulated in GN, but population is low 
 ##a little bit same trend in MP
 
@@ -167,5 +200,37 @@ FeaturePlot(TAC_integrated,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+##everything kinda low but Gpr116
 
-VlnPlot(TAC_integrated, pt.size = 0, features = "Gpr116", split.by = "condition")
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        pt.size = 0, features = "Gpr116", cols=color_timepoint,
+        split.by = "condition")
+##interestingly in CM, Gpr116 seems to go up ~5w, but drops after that
+
+
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Gpr56","Gpr64", "Gpr97",
+                         "Gpr112", "Gpr114","Gpr126","Gpr128"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        pt.size = 0.1, features = "Gpr56", cols=color_timepoint,
+        split.by = "condition")
+#not enough % to show violin shape, but from the dots it might be upregulated in CM at 5w
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Lphn1","Lphn2", "Lphn3",
+                         "Eltd1", "Gpr98"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        pt.size = 0, features = "Eltd1", cols=color_timepoint,
+        split.by = "condition")
+#not that clear, but maybe higher at 8w in EC
