@@ -138,7 +138,7 @@ metadata %>%
   ggplot(aes(x=condition, fill=CellType)) +
   geom_bar() +
   scale_fill_manual(values = met.brewer("Renoir",8, direction = -1, type = "discrete"))+
-  theme_minimal() +
+  theme_classic() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
         plot.title = element_text(hjust=0.5, face="bold")) +
   ggtitle("NCells")
@@ -161,7 +161,8 @@ FeaturePlot(TAC_integrated,
 #so none of the adgrs showed up, had to search the gprs, and some other names
 #Gpr124 mainly in FB
 
-#VlnPlot(TAC_integrated, pt.size = 0, features = "Gpr124")
+VlnPlot(TAC_integrated, pt.size = 0.1, idents = idents_to_use,
+        features = "Gpr124", split.by = "condition")
 #not much 
 
 FeaturePlot(TAC_integrated, 
@@ -177,16 +178,17 @@ FeaturePlot(TAC_integrated,
 color_timepoint <- met.brewer("Homer1", 5, direction = -1, type = "discrete")
 idents_to_use <- c("CM","MP","T","FB","EC","GN")
 
-#VlnPlot(TAC_integrated, pt.size = 0, features = "Gpr133")
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        pt.size = 0.1, features = "Gpr133", split.by = "condition")
 #not much
 
 VlnPlot(TAC_integrated, idents = idents_to_use,
-        pt.size = 0, features = "Emr1", cols=color_timepoint,
+        pt.size = 0.1, features = "Emr1", cols=color_timepoint,
         split.by = "condition")
 ##wk5 seems a bit upregulated in MP
 
 VlnPlot(TAC_integrated, idents = idents_to_use,
-        pt.size = 0, features = "Cd97", cols=color_timepoint,
+        pt.size = 0.1, features = "Cd97", cols=color_timepoint,
         split.by = "condition")
 ##Wk5 seems upregulated in GN, but population is low 
 ##a little bit same trend in MP
@@ -206,7 +208,7 @@ VlnPlot(TAC_integrated, idents = idents_to_use,
         pt.size = 0, features = "Gpr116", cols=color_timepoint,
         split.by = "condition")
 ##interestingly in CM, Gpr116 seems to go up ~5w, but drops after that
-
+##possibly an upregulation in EC @5w too
 
 
 FeaturePlot(TAC_integrated, 
@@ -234,3 +236,8 @@ VlnPlot(TAC_integrated, idents = idents_to_use,
         pt.size = 0, features = "Eltd1", cols=color_timepoint,
         split.by = "condition")
 #not that clear, but maybe higher at 8w in EC
+
+VlnPlot(TAC_integrated, idents = idents_to_use,
+        +         pt.size = 0.1, features = "Lphn2", cols=color_timepoint,
+        +         split.by = "condition")
+#not much
