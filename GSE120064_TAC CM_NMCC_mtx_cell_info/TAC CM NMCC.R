@@ -4,7 +4,8 @@ library(Seurat)
 library(tidyverse)
 library(data.table)
 library(MetBrewer)
-
+library(ggplot2)
+library(viridis)
 
 ###load raw data and cell info (metadata)##
 
@@ -39,10 +40,16 @@ metadata_full <- metadata %>%
   column_to_rownames("cell_id")
 ##keep the rownames as cell_id
 
+##metadata_full$condition <- factor(metadata_full$condition, levels = c("0w", "2w","5w","8w","11w"))
+##good extra thing to do for future visualization
 
 TAC_CM_NMCC@meta.data <- metadata_full
 
-save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC_metadata.rdata")
+Idents(TAC_CM_NMCC) <- metadata_full$CellType
+
+save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC_metadata_no levels.rdata")
+##conditions no levels, cell type added
+
 
 ####Normalization without integration
 TAC_no_integ <- NormalizeData(TAC_CM_NMCC) %>% 
@@ -238,6 +245,52 @@ VlnPlot(TAC_integrated, idents = idents_to_use,
 #not that clear, but maybe higher at 8w in EC
 
 VlnPlot(TAC_integrated, idents = idents_to_use,
-        +         pt.size = 0.1, features = "Lphn2", cols=color_timepoint,
-        +         split.by = "condition")
+        pt.size = 0.1, features = "Lphn2", cols=color_timepoint,
+        split.by = "condition")
 #not much
+
+
+##subset##
+
+load("data/TAC_CM_NMCC_metadata.rdata")
+
+
+TAC_CM <- subset(TAC_CM_NMCC, idents = "CM") %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata <- TAC_CM@meta.data
+
+##metadata$condition <- factor(metadata$condition, levels = c("0w", "2w", "5w", "8w", "11w"))
+
+#TAC_CM@meta.data <- metadata
+
+#once levels are included, the order of the groups are right, 
+#BUT somehow all conditions will show up in heatmap, 
+#even if it's filtered out and not in "cells" argument
+
+
+save(TAC_CM, file = "data/TAC_CM_metadata.rdata")
+###without levels 
+
+load("data/TAC_CM_metadata.rdata")
+
+
+cell_0_5w_11w <- metadata_full %>% 
+  rownames_to_column("cell_id") %>% 
+  filter(CellType=="CM",
+         condition %in% c("0w", "5w", "11w"))%>% 
+  pull("cell_id")
+
+color_group <- met.brewer("Homer1", 3, direction = -1, type = "discrete")
+
+DoHeatmap(TAC_CM, cells = cell_0_5w_11w,
+          features = c("Myh6","Myh7", "Adrb1",
+                       "Gpr124", "Cd97", "Gpr116", "Gpr56", "Eltd1", "Lphn2"),
+          group.by = "condition",
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B")
+
+
+#basically when no levels, wrong order but the filtered identity is out
+#when yes levels, right order but the filtered identity leaves a trace
