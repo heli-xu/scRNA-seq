@@ -259,7 +259,7 @@ TAC_CM <- subset(TAC_CM_NMCC, idents = "CM") %>%
   NormalizeData() %>% 
   ScaleData() 
 
-metadata <- TAC_CM@meta.data
+
 
 ##metadata$condition <- factor(metadata$condition, levels = c("0w", "2w", "5w", "8w", "11w"))
 
@@ -275,22 +275,41 @@ save(TAC_CM, file = "data/TAC_CM_metadata.rdata")
 
 load("data/TAC_CM_metadata.rdata")
 
+metadata <- TAC_CM@meta.data
 
-cell_0_5w_11w <- metadata_full %>% 
-  rownames_to_column("cell_id") %>% 
-  filter(CellType=="CM",
-         condition %in% c("0w", "5w", "11w"))%>% 
-  pull("cell_id")
+##set new idents (current subset only has one ident, CM)
+Idents(TAC_CM) <- metadata$condition
+
+#set levels for object; this is referring to the idents 
+#(so if you don't set idents, you can't do levels right)
+levels(TAC_CM) <- c("0w", "2w", "5w", "8w", "11w")
+
+
+#cell_0_5w_11w <- metadata %>% 
+ # rownames_to_column("cell_id") %>% 
+  #filter(condition %in% c("0w", "5w", "11w"))%>% 
+  #pull("cell_id")
+
+#so originally I planned to define the cells I'm including in the heatmap, 
+#but couldn't fix the order of groups 
+#so gonna try subsetting out the condition that I want, and then plot
+
+TAC_CM_heatmap <- subset(TAC_CM, idents = c("0w", "5w", "11w"))
 
 color_group <- met.brewer("Homer1", 3, direction = -1, type = "discrete")
 
-DoHeatmap(TAC_CM, cells = cell_0_5w_11w,
+DoHeatmap(TAC_CM_heatmap, 
           features = c("Myh6","Myh7", "Adrb1",
-                       "Gpr124", "Cd97", "Gpr116", "Gpr56", "Eltd1", "Lphn2"),
-          group.by = "condition",
+                      "Gpr116", "Gpr56", "Eltd1", "Lphn2", "Cd97", "Gpr124","Gpr133", "Emr1"),
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
           disp.min = -0.5, disp.max = 3)+
-  scale_fill_viridis(option = "B")
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
 
 
-#basically when no levels, wrong order but the filtered identity is out
-#when yes levels, right order but the filtered identity leaves a trace
+DotPlot(TAC_CM,
+        features = c("Myh6","Myh7", "Adrb1",
+                     "Gpr116", "Gpr56", "Eltd1", "Lphn2", "Cd97", "Gpr124","Gpr133", "Emr1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)
