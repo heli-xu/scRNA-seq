@@ -294,11 +294,11 @@ levels(TAC_CM) <- c("0w", "2w", "5w", "8w", "11w")
 #but couldn't fix the order of groups 
 #so gonna try subsetting out the condition that I want, and then plot
 
-TAC_CM_heatmap <- subset(TAC_CM, idents = c("0w", "5w", "11w"))
+TAC_CM_plot <- subset(TAC_CM, idents = c("0w", "5w", "11w"))
 
-color_group <- met.brewer("Homer1", 3, direction = -1, type = "discrete")
+#color_group <- met.brewer("Homer1", 3, direction = -1, type = "discrete")
 
-DoHeatmap(TAC_CM_heatmap, 
+DoHeatmap(TAC_CM_plot, 
           features = c("Myh6","Myh7", "Adrb1",
                       "Gpr116", "Gpr56", "Eltd1", "Lphn2", "Cd97", "Gpr124","Gpr133", "Emr1"),
           #group.by = "condition",
@@ -308,8 +308,38 @@ DoHeatmap(TAC_CM_heatmap,
   theme(text = element_text(size = 20))
 
 
-DotPlot(TAC_CM,
+DotPlot(TAC_CM_plot,
         features = c("Myh6","Myh7", "Adrb1",
                      "Gpr116", "Gpr56", "Eltd1", "Lphn2", "Cd97", "Gpr124","Gpr133", "Emr1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)
+
+
+#####taking a brief look at FB#####
+load("data/TAC_CM_NMCC_metadata_no levels.rdata")
+
+TAC_FB <- subset(TAC_CM_NMCC, idents = "FB") %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_fb <- TAC_FB@meta.data
+
+Idents(TAC_FB) <- metadata_fb$condition
+
+levels(TAC_FB) <- c("0w", "2w", "5w", "8w", "11w")
+
+DoHeatmap(TAC_FB, 
+          features = c("Col3a1",
+                       "Gpr116", "Gpr124","Gpr133"),
+          lines.width = 20,
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
+
+DotPlot(TAC_FB,
+        features = c("Col3a1",
+                     "Gpr116", "Gpr124","Gpr133"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)
