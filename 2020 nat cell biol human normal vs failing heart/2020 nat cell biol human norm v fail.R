@@ -1,6 +1,6 @@
 library(dplyr)
 library(Seurat)
-
+library(harmony)
 library(tidyverse)
 library(data.table)
 library(MetBrewer)
@@ -33,7 +33,7 @@ counts2$V1 <- NULL
 
 human_HF <- CreateSeuratObject(counts2, project = "human HF",
                                    min.cells =3, min.features  = 200)
-
+##i think it meant to be combined with that other healthy dataset
 
 
 cell_info <- read.table("raw/norm_HF/GSE121893_all_heart_cell_cluster_info.txt", header = T)
@@ -55,7 +55,15 @@ cell_info <- cell_info %>%
 
 metadata_full <- metadata %>% 
   left_join(cell_info, by = "cell_id") %>% 
-  mutate(group = if_else(str_detect(condition, "HF"), "HF", "Normal")) %>% 
+  mutate(group = if_else(str_detect(condition, "HF"), "HF", "Normal"),
+         CellType = case_when(str_detect(ident, "LA")~"CM",
+                              str_detect(ident, "LV")~"CM",
+                              str_detect(ident, "MP")~"MP",
+                              str_detect(ident, "FB")~"FB",
+                              str_detect(ident, "EC")~"EC",
+                              str_detect(ident, "SMC")~"SMC",
+                              str_detect(ident, "AV")~"CM")) %>% 
+  #filter(is.na(CellType))   #check for missing celltype
   column_to_rownames("cell_id")
 ##keep the rownames as cell_id
 
@@ -66,69 +74,48 @@ human_HF@meta.data <- metadata_full
 
 Idents(human_HF) <- metadata_full$ident
 
-save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC_metadata_no levels.rdata")
+save(human_HF, file = "data/human_HF_metadata.rdata")
 ##conditions no levels, cell type added
 
 
-####Normalization without integration
+####Normalization without integration###no need to run 
 human_HF_no_integ <- NormalizeData(human_HF) %>% 
   FindVariableFeatures(selection.method = "vst", 
                        nfeatures = 2000, verbose = FALSE) %>% 
   ScaleData() %>% 
-  RunPCA() %>% 
-  FindNeighbors(dims = 1:20) %>% 
-  FindClusters(resolution = 0.8) %>% 
-  RunUMAP(dim=1:20)
+  RunPCA(npc = 30) 
 
-DimPlot(human_HF_no_integ, reduction = "umap", label = T)
-##some cluster seems only to show one condition, but paper used some housekeeping genes
-#to demonstrate minimal batch effects
+DimPlot(human_HF_no_integ, reduction = "pca", group.by = "group")
+##looks pretty separated
+VlnPlot(human_HF_no_integ, features = "PC_1", group.by = "group")
 
 
-####Sctransform with integration ###
+####Harmony ####
+human_HF_harmony <- NormalizeData(human_HF, verbose = FALSE) %>% 
+  FindVariableFeatures(selection.method = "vst", 
+                       nfeatures = 2000, verbose = FALSE) %>% 
+  ScaleData(verbose = FALSE) %>% 
+  RunPCA(npc=20, verbose= FALSE)
 
-load("data/cell_cycle_mouse.rdata")
+human_HF_harmony <- human_HF_harmony %>% 
+  RunHarmony("group", plot_convergence = TRUE)
 
-s_genes <- cell_cycle_markers %>%
-  dplyr::filter(phase == "S") %>%
-  pull("gene_name")
+DimPlot(human_HF_harmony, reduction = "harmony", group.by = "group")
 
-g2m_genes <- cell_cycle_markers %>%
-  dplyr::filter(phase == "G2/M") %>%
-  pull("gene_name")
-
-
-split_TAC <- SplitObject(TAC_CM_NMCC, split.by = "condition")
-
-split_TAC <- split_TAC[c("0w","2w","5w","8w","11w")] %>%  
-  map(~.x %>% 
-        NormalizeData() %>% 
-        CellCycleScoring(g2m.features = g2m_genes, 
-                         s.features = s_genes) %>% 
-        SCTransform(verbose=FALSE))
-##took quite a few min to run
-
-integ_features <- SelectIntegrationFeatures(object.list = split_TAC, 
-                                            nfeatures = 3000) 
-
-# Prepare the SCT list object for integration
-split_TAC <- PrepSCTIntegration(object.list = split_TAC, 
-                                anchor.features = integ_features)
-
-# CCA: Find best buddies - can take a while to run
-integ_anchors <- FindIntegrationAnchors(object.list = split_TAC, 
-                                        normalization.method = "SCT", 
-                                        anchor.features = integ_features,
-                                        verbose=FALSE)
-##took quite long (15min for 8G RAM)
+VlnPlot(human_HF_harmony, features = "harmony_1", group.by = "group")
 
 
-# Integrate across conditions
-TAC_integrated <- IntegrateData(anchorset = integ_anchors,
-                                normalization.method = "SCT",
-                                verbose=FALSE)
-##cannot run with 8G RAM
+####UMAP and clusters####
 
+human_HF_harmony <- human_HF_harmony %>% 
+  RunUMAP(reduction = "harmony", dims = 1:20) %>% 
+  FindNeighbors(reduction = "harmony", dims = 1:20) %>% 
+  FindClusters(resolution = 0.6) 
+
+
+DimPlot(human_HF_harmony, reduction = "umap", label = T, split.by = "group")
+
+Idents(human_HF_harmony) <- metadata_full$CellType
 
 ##run normalization and umap for visualization
 TAC_integrated <- RunPCA(object = TAC_integrated,verbose = FALSE) %>% 
@@ -160,10 +147,10 @@ DimPlot(TAC_integrated, reduction = "umap", label = T)
 
 ##A little bit on cell count across different conditions
 #used met.brewer for color pallet 
-metadata %>% 
-  ggplot(aes(x=condition, fill=CellType)) +
+metadata_full %>% 
+  ggplot(aes(x=group, fill=CellType)) +
   geom_bar() +
-  scale_fill_manual(values = met.brewer("Renoir",8, direction = -1, type = "discrete"))+
+ # scale_fill_manual(values = met.brewer("Renoir",8, direction = -1, type = "discrete"))+
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
         plot.title = element_text(hjust=0.5, face="bold")) +
