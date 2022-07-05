@@ -275,10 +275,10 @@ save(TAC_CM, file = "data/TAC_CM_metadata.rdata")
 
 load("data/TAC_CM_metadata.rdata")
 
-metadata <- TAC_CM@meta.data
+metadata_cm <- TAC_CM@meta.data
 
 ##set new idents (current subset only has one ident, CM)
-Idents(TAC_CM) <- metadata$condition
+Idents(TAC_CM) <- metadata_cm$condition
 
 #set levels for object; this is referring to the idents 
 #(so if you don't set idents, you can't do levels right)
@@ -314,9 +314,10 @@ DotPlot(TAC_CM_plot,
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)
 
+VlnPlot(TAC_CM, features = "Gpr116")
 
 #####taking a brief look at FB#####
-load("data/TAC_CM_NMCC_metadata_no levels.rdata")
+load("data/TAC_CM_NMCC_metadata.rdata")
 
 TAC_FB <- subset(TAC_CM_NMCC, idents = "FB") %>% 
   NormalizeData() %>% 
@@ -343,3 +344,41 @@ DotPlot(TAC_FB,
                      "Gpr116", "Gpr124","Gpr133"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)
+
+#####ADGRs in EC####
+load("data/TAC_CM_NMCC_metadata.rdata")
+
+metadata <- TAC_CM_NMCC@meta.data
+
+Idents(TAC_CM_NMCC) <- metadata$CellType
+  
+TAC_EC <- subset(TAC_CM_NMCC, idents = "EC") %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_ec <- TAC_EC@meta.data
+
+Idents(TAC_EC) <- metadata_ec$condition
+
+levels(TAC_EC) <- c("0w", "2w", "5w", "8w", "11w")
+
+DoHeatmap(TAC_EC, 
+          features = c("Pecam1",
+                       "Gpr116", "Gpr56", "Eltd1", "Lphn2", 
+                       "Cd97", "Gpr124","Gpr133", "Emr1"),
+          lines.width = 20,
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
+
+DotPlot(TAC_EC,
+        features = c("Pecam1",
+                     "Gpr116", "Gpr56", "Eltd1", "Lphn2", 
+                     "Cd97", "Gpr124","Gpr133", "Emr1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TAC_EC, features = "Gpr116")
