@@ -178,15 +178,17 @@ metadata_full %>%
 
 ######4.2 ADGRs of interest in CMs####
 ##subset CM###
+load("data/human_normal_HF_hmn_cluster.rdata")
+
 all_features <- rownames(human_normal_HF_hmn@assays$RNA@data)
 
 human_CM <- subset(human_normal_HF_hmn, idents = "CM") %>% 
   NormalizeData() %>% 
   ScaleData(feature = all_features)
 
-metadata_CM <- human_CM@meta.data
+metadata_cm <- human_CM@meta.data
 
-Idents(human_CM) <- metadata_CM$group
+Idents(human_CM) <- metadata_cm$group
 
 levels(human_CM) <- c("Normal", "HF")
 
@@ -206,7 +208,14 @@ DotPlot(human_CM,
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 #adjust x axis label
 
-VlnPlot(human_CM, features = "ADGRF5", split.by = "group")
+DotPlot(human_CM,
+        features = "ADGRF5",
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+#without marker gene, dot will be more noticable
+
+VlnPlot(human_CM, features = "ADGRF5")
 
 CM_markers <- FindAllMarkers(human_CM, test.use = "MAST")
 
