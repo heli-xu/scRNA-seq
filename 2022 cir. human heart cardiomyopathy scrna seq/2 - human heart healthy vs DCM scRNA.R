@@ -277,6 +277,9 @@ metadata %>%
 
 
 ###subsetting  CM###
+load("processed data/human_dcm_normalized_cluster.rdata")
+
+
 human_dcm_CM <- subset(human_dcm, idents = "CM")
 
 rm(human_dcm) #to save RAM
@@ -304,8 +307,18 @@ VlnPlot(human_dcm_CM, features = c("MYH6","ANKRD1","NPPA", "ADGRL3"), ncol=2, pt
 ####7. exploring adgrs####
 
 
-VlnPlot(human_dcm_CM_plot, features = c("ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
+VlnPlot(human_dcm_CM, features = c("ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
                                    "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"))
+
+VlnPlot(human_dcm_CM, features = "ADGRF5")
+
+DotPlot(human_dcm_CM,
+        features = "ADGRF5",
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+#if you only do genes expressed in similar% cells, the dots won't look too tiny,
+#range will also change to only cover the selected genes
 
 ##scaling data with all features
 #because otherwise some genes we want are not included in the variable features
