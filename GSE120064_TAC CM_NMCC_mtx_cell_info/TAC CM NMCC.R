@@ -307,12 +307,27 @@ DoHeatmap(TAC_CM_plot,
   scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
   theme(text = element_text(size = 20))
 
+DoHeatmap(TAC_CM, 
+          features = c("Myh6","Myh7", "Gpr116"),
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
 
 DotPlot(TAC_CM_plot,
         features = c("Myh6","Myh7", "Adrb1",
                      "Gpr116", "Gpr56", "Eltd1", "Lphn2", "Cd97", "Gpr124","Gpr133", "Emr1"),
         col.min = 0, col.max = 3,
-        dot.min = 0, dot.scale = 6)
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+DotPlot(TAC_CM_plot,
+        features = c("Myh7","Gpr116"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
 
 VlnPlot(TAC_CM, features = "Gpr116")
 
