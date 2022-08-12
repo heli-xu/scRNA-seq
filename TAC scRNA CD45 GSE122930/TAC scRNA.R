@@ -148,10 +148,21 @@ TAC_integrated <- NormalizeData(TAC_integrated, verbose = FALSE)
 #markers included in supplemental data of the paper
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
-            features = c("Cd14","Itgam","Cd68", "Ly6c2"), 
+            features = c("Cd14","Itgam","Cd68", "Ly6c2", 
+                         "Ly6g", "Itgax"), 
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+##neutrophil 14
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Cd68","Fcgr1", "Adgre1"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##macrophage 1, 2, 9, 10, 15, 17, 22, 23
+VlnPlot(TAC_integrated, features = c("Cd68","Fcgr1", "Adgre1"), pt.size = 0 )
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -159,8 +170,42 @@ FeaturePlot(TAC_integrated,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+##5,6,12,13,16 T cells
+#0, 4,8, 18 B cells
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Gzma", "Klrb1c"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+##3, 7 NK cells
 
 ##so we have half myeloid half lymphoid cells 
+
+###Rename clusters####
+
+TAC_integrated <- RenameIdents(object = TAC_integrated,
+                               "0"="B",
+                               "1"="macrophages",
+                               "2"="macrophages",
+                               "3"="NK",
+                               "4"="B",
+                               "5"="T",
+                               "6"="T",
+                               "7"="NK",
+                               "9"="macrophages",
+                               "10"="macrophages",
+                               "12"="T",
+                               "13"="B",
+                               "14"="neutrophils",
+                               "15"="macrophages",
+                               "16"="T",
+                               "17"="macrophages",
+                               "18"="B",
+                               "22"="macrophages",
+                               "23"="macrophages")
+
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -241,3 +286,5 @@ FeaturePlot(TAC_integrated,
 #not much
 VlnPlot(TAC_integrated, features= "Adgrl1")
 VlnPlot(TAC_integrated, idents=c(1,2,5,6,12,13), features= "Adgrl1", split.by = "sample")
+
+
