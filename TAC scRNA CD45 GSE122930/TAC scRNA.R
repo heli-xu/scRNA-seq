@@ -2,6 +2,8 @@ library(dplyr)
 library(Seurat)
 library(Matrix)
 library(tidyverse)
+library(ggplot2)
+library(viridis)
 
 #########import
 
@@ -155,6 +157,7 @@ FeaturePlot(TAC_integrated,
             label = TRUE)
 ##neutrophil 14
 
+
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
             features = c("Cd68","Fcgr1", "Adgre1"), 
@@ -162,7 +165,25 @@ FeaturePlot(TAC_integrated,
             min.cutoff = 'q10', 
             label = TRUE)
 ##macrophage 1, 2, 9, 10, 15, 17, 22, 23
-VlnPlot(TAC_integrated, features = c("Cd68","Fcgr1", "Adgre1"), pt.size = 0 )
+VlnPlot(TAC_integrated, features = c("Cd14","Itgam", "Cd68","Fcgr1", "Adgre1"), pt.size = 0 )
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Timd4","Lyve1", "Cd163","Ccl24"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+VlnPlot(TAC_integrated, features = c("Timd4","Lyve1", "Cd163","Ccl24"), pt.size = 0 )
+#resident MP
+
+FeaturePlot(TAC_integrated, 
+            reduction = "umap", 
+            features = c("Ccr2","Plac8","Ly6c2", "H2-DMb1"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
+VlnPlot(TAC_integrated, features = c("Ccr2","Plac8","Ly6c2", "H2-DMb1"), pt.size = 0 )
+#moMF
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -194,6 +215,7 @@ TAC_integrated <- RenameIdents(object = TAC_integrated,
                                "5"="T",
                                "6"="T",
                                "7"="NK",
+                               "8"="B",
                                "9"="macrophages",
                                "10"="macrophages",
                                "12"="T",
@@ -206,6 +228,8 @@ TAC_integrated <- RenameIdents(object = TAC_integrated,
                                "22"="macrophages",
                                "23"="macrophages")
 
+save(TAC_integrated, file = "data/clustered_integrated_TAC.rdata")
+##cluster renamed
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -214,6 +238,8 @@ FeaturePlot(TAC_integrated,
             min.cutoff = 'q10', 
             label = TRUE)
 #very little
+
+#####Exploring ADGRs in all clusters####
 
 FeaturePlot(TAC_integrated, 
             reduction = "umap", 
@@ -287,4 +313,83 @@ FeaturePlot(TAC_integrated,
 VlnPlot(TAC_integrated, features= "Adgrl1")
 VlnPlot(TAC_integrated, idents=c(1,2,5,6,12,13), features= "Adgrl1", split.by = "sample")
 
+###Subset MP####
 
+# TAC_MP <- subset(TAC_integrated, idents = "macrophages") %>% 
+#   NormalizeData() %>% 
+#   ScaleData() 
+#somehow during normalizing, "cannot add a different number of cells than already present"
+#not good to use the integrated dataset to subset, 
+#use the original merged/complete dataset with minimum processing
+#make sure celltype info embedded in metadata of orignal dataset
+
+#adding celltype to metadata of mother dataset
+metadata <- TAC_integrated@meta.data
+
+
+metadata$cellType <- Idents(TAC_integrated)
+
+load("data/merged_TAC.Rdata")
+
+merged_TAC@meta.data <- metadata
+
+save(merged_TAC, file = "data/merged_TAC_metadata.rdata")
+#with cluster names
+
+Idents(merged_TAC) <- metadata$cellType
+
+TAC_MP <- subset(merged_TAC, idents = "macrophages") %>% 
+     NormalizeData() %>% 
+     ScaleData() 
+
+metadata_mp <- TAC_MP@meta.data
+
+Idents(TAC_MP) <- metadata_mp$sample
+
+levels(TAC_MP) <- c("Sham1","TAC1","Sham4","TAC4")
+
+DotPlot(TAC_MP,
+        features = c("Cd14",
+                     "Adgrf5", "Adgrg1",
+                     "Adgre5", "Adgre1", "Adgre4",
+                     "Adgrl1", "Adgrl3","Adgrl4"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+DoHeatmap(TAC_MP, 
+          features =c("Cd14",
+                      "Adgrf5", "Adgrg1",
+                      "Adgre5", "Adgre1", "Adgre4",
+                      "Adgrl1", "Adgrl3","Adgrl4"),
+          lines.width = 20,
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
+
+VlnPlot(TAC_MP, features = c("Adgre5", "Adgre1", "Adgre4"), pt.size = 0)
+
+####Subset T cells####
+TAC_T <- subset(merged_TAC, idents = "T") %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_t <- TAC_T@meta.data
+
+Idents(TAC_T) <- metadata_t$sample
+
+levels(TAC_T) <-c("Sham1","TAC1","Sham4","TAC4")
+
+DotPlot(TAC_T,
+        features = c(#"Cd3d",
+                     "Adgrf5", "Adgrg1",
+                     "Adgre5", 
+                     "Adgre1", "Adgre4",
+                     "Adgrl1", "Adgrl3","Adgrl4"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TAC_T, features = "Adgre5", pt.size = 0)
