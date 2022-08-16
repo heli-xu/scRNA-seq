@@ -27,11 +27,12 @@ dim(sp)
 h5attr(x = x, which = "dims")
 
 human_MI <- LoadH5Seurat("raw/snRNA-seq-submission.h5seurat") ## error
-human_MI_diy = object; save(human_MI_diy, file = 'human_MI_diy.rdata')
+
 #Error in sparseMatrix????????????
-#this sometimes doesn't work, so have to work around using python
+#had to modify source code of LoadH5Seurat function (in separate R scripts)
 
-
+human_MI_diy = object; save(human_MI_diy, file = 'human_MI_diy.rdata')
+#object returned from "DIY count and LoadH5seurat modified.r' 
 
 metadata <- human_MI_diy@meta.data
 ##cannot use"$" for index
