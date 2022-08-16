@@ -334,3 +334,43 @@ DoHeatmap(human_dcm_CM_plot,
           disp.min = -0.5, disp.max = 3)+
   scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
   theme(text = element_text(size = 20))
+
+
+
+###8. subsetting EC####
+load("processed data/human_dcm_normalized_cluster.rdata")
+
+human_dcm_EC <- subset(human_dcm, idents = "EC")
+
+rm(human_dcm) #to save RAM
+
+human_dcm_EC <- NormalizeData(human_dcm_EC) %>% 
+  ScaleData()
+
+metadata_EC <- human_dcm_EC@meta.data
+
+#we need to merge cluster, but split by condition
+Idents(human_dcm_EC) <- metadata_EC$condition
+
+levels(human_dcm_EC)
+
+###visualization
+
+DotPlot(human_dcm_EC,
+        features = c("PECAM1",
+                     "ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
+                     "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+        
+VlnPlot(human_dcm_EC, features = "ADGRF5", pt.size = 0)  
+VlnPlot(human_dcm_EC, features = "ADGRL4", pt.size = 0)
+        
+DoHeatmap(human_dcm_EC, 
+          features = c("PECAM1","ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
+                       "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))        
+        
