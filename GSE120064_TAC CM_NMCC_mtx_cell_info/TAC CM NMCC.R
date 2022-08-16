@@ -47,7 +47,7 @@ TAC_CM_NMCC@meta.data <- metadata_full
 
 Idents(TAC_CM_NMCC) <- metadata_full$CellType
 
-save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC_metadata_no levels.rdata")
+save(TAC_CM_NMCC, file = "data/TAC_CM_NMCC_metadata_celltype.rdata")
 ##conditions no levels, cell type added
 
 
@@ -252,7 +252,7 @@ VlnPlot(TAC_integrated, idents = idents_to_use,
 
 ##subset##
 
-load("data/TAC_CM_NMCC_metadata.rdata")
+load("data/TAC_CM_NMCC_metadata_celltype.rdata")
 
 
 TAC_CM <- subset(TAC_CM_NMCC, idents = "CM") %>% 
@@ -270,7 +270,7 @@ TAC_CM <- subset(TAC_CM_NMCC, idents = "CM") %>%
 #even if it's filtered out and not in "cells" argument
 
 
-save(TAC_CM, file = "data/TAC_CM_metadata.rdata")
+save(TAC_CM, file = "data/TAC_CM_metadata_celltype.rdata")
 ###without levels 
 
 load("data/TAC_CM_metadata.rdata")
@@ -332,7 +332,7 @@ DotPlot(TAC_CM_plot,
 VlnPlot(TAC_CM, features = "Gpr116")
 
 #####taking a brief look at FB#####
-load("data/TAC_CM_NMCC_metadata.rdata")
+load("data/TAC_CM_NMCC_metadata_celltype.rdata")
 
 TAC_FB <- subset(TAC_CM_NMCC, idents = "FB") %>% 
   NormalizeData() %>% 
@@ -397,3 +397,82 @@ DotPlot(TAC_EC,
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 VlnPlot(TAC_EC, features = "Gpr116")
+VlnPlot(TAC_EC, features = "Eltd1")
+
+#####ADGRs in MP####
+load("data/TAC_CM_NMCC_metadata_celltype.rdata")
+#with celltype info
+
+metadata <- TAC_CM_NMCC@meta.data
+
+TAC_MP <- subset(TAC_CM_NMCC, idents = "MP") %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_mp <- TAC_MP@meta.data
+
+Idents(TAC_MP) <- metadata_mp$condition
+
+levels(TAC_MP) <- c("0w", "2w", "5w", "8w", "11w")
+
+DoHeatmap(TAC_MP, 
+          features = c("Cd14",
+                       "Gpr116", "Gpr56",
+                       "Emr1","Emr2", "Emr3",
+                       "Emr4", "Cd97",
+                       "Gpr124","Gpr133", "Lphn2","Eltd1"),
+          lines.width = 20,
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
+
+DotPlot(TAC_MP,
+        features = c("Cd14",
+                     "Gpr116", "Gpr56",
+                     "Emr1","Emr2", "Emr3",
+                     "Emr4", "Cd97",
+                     "Gpr124","Gpr133", "Lphn2","Eltd1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TAC_MP, features = c("Gpr116","Emr1"))
+
+#####ADGRs in T####
+TAC_T <- subset(TAC_CM_NMCC, idents = "T") %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_t <- TAC_T@meta.data
+
+Idents(TAC_T) <- metadata_t$condition
+
+levels(TAC_T) <- c("0w", "2w", "5w", "8w", "11w")
+
+DoHeatmap(TAC_T, 
+          features = c("Cd3d",
+                       "Gpr116", "Gpr56",
+                       "Emr1","Emr2", "Emr3",
+                       "Emr4", "Cd97",
+                       "Gpr124","Gpr133", "Lphn2","Eltd1"),
+          lines.width = 20,
+          #group.by = "condition",
+          #group.colors = color_group, #not changed in legend, a bug that's being fixed
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
+
+DotPlot(TAC_T,
+        features = c(#"Cd3d",
+                     "Gpr116", "Gpr56",
+                     "Emr1","Emr2", "Emr3",
+                     "Emr4", "Cd97",
+                     "Gpr124","Gpr133", "Lphn2","Eltd1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TAC_T, features = "Gpr116")
+#"Gpr56","Cd97" no violin shape
