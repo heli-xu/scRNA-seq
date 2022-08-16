@@ -220,6 +220,7 @@ VlnPlot(human_CM, features = "ADGRF5")
 CM_markers <- FindAllMarkers(human_CM, test.use = "MAST")
 
 ######4.3 ADGRs in ECs ####
+load("data/human_normal_HF_hmn_cluster.rdata")
 
 human_NCM <- subset(human_normal_HF_hmn, idents = "NCM")
 
@@ -259,7 +260,14 @@ FeaturePlot(human_NCM,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
-#Myeloid/MP
+#Myeloid/MP: 10
+
+FeaturePlot(human_NCM,
+            reduction = "umap", 
+            features = c("CD3E", "CD3D"), 
+            sort.cell = TRUE,
+            min.cutoff = 'q10', 
+            label = TRUE)
 
 human_EC <- subset(human_NCM, idents = c(1, 6, 8, 11))%>% 
   NormalizeData() %>% 
@@ -280,11 +288,12 @@ DoHeatmap(human_EC,
   theme(text = element_text(size = 20))
 
 VlnPlot(human_EC, features = "ADGRF5", split.by = "group")
-VlnPlot(human_EC, features = "ADGRG1", split.by = "group")
+VlnPlot(human_EC, features = "ADGRL4", split.by = "group")
 
 
 DotPlot(human_EC,
-        features = c("PECAM1","ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
+        features = c("PECAM1",
+          "ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
                      "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
@@ -293,11 +302,34 @@ DotPlot(human_EC,
 EC_markers <- FindAllMarkers(human_EC, test.use = "MAST")
 
 
-#so originally I planned to define the cells I'm including in the heatmap, 
-#but couldn't fix the order of groups 
-#so gonna try subsetting out the condition that I want, and then plot
+####4.4 ADGRs in MP subset####
+human_MP <- subset(human_NCM, idents = 10)%>% 
+  NormalizeData() %>% 
+  ScaleData(feature = all_features)
 
-#TAC_CM_plot <- subset(TAC_CM, idents = c("0w", "5w", "11w"))
 
-#color_group <- met.brewer("Homer1", 3, direction = -1, type = "discrete")
+metadata_MP <- human_MP@meta.data
 
+Idents(human_MP) <- metadata_MP$group
+
+levels(human_MP) <- c("Normal", "HF")
+
+DoHeatmap(human_MP, 
+          features = c("CD14", #CD3D if for T cells
+                       "ADGRF5", "ADGRG1", 
+                       "ADGRE5", "ADGRE1", "ADGRE4P", #try both ADGRE4 and 4P
+                       "ADGRA2", "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
+          disp.min = -0.5, disp.max = 3)+
+  scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
+  theme(text = element_text(size = 20))
+
+VlnPlot(human_MP, features = "ADGRF5", split.by = "group")
+
+DotPlot(human_MP,
+        features = c(#"CD14", #makes the rest of the dots very small
+                     "ADGRF5", "ADGRG1", 
+                     "ADGRE5", "ADGRE1", "ADGRE4P", #try both ADGRE4 and 4P
+                     "ADGRA1", "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
