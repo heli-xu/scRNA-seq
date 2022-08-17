@@ -323,6 +323,7 @@ VlnPlot(TAC_integrated, idents=c(1,2,5,6,12,13), features= "Adgrl1", split.by = 
 #use the original merged/complete dataset with minimum processing
 #make sure celltype info embedded in metadata of orignal dataset
 
+load("data/clustered_integrated_TAC.rdata")
 #adding celltype to metadata of mother dataset
 metadata <- TAC_integrated@meta.data
 
@@ -335,6 +336,7 @@ merged_TAC@meta.data <- metadata
 
 save(merged_TAC, file = "data/merged_TAC_metadata.rdata")
 #with cluster names
+load("data/merged_TAC_cluster.rdata.Rdata")
 
 Idents(merged_TAC) <- metadata$cellType
 
@@ -349,10 +351,11 @@ Idents(TAC_MP) <- metadata_mp$sample
 levels(TAC_MP) <- c("Sham1","TAC1","Sham4","TAC4")
 
 DotPlot(TAC_MP,
-        features = c("Cd14",
-                     "Adgrf5", "Adgrg1",
-                     "Adgre5", "Adgre1", "Adgre4",
-                     "Adgrl1", "Adgrl3","Adgrl4"),
+        features = c(#"Cd14",
+                     "Adgrf5", "Adgrg1"
+                     #"Adgre5", "Adgre1", "Adgre4",
+                     #"Adgrl1", "Adgrl3","Adgrl4"
+                     ),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
@@ -387,7 +390,8 @@ DotPlot(TAC_T,
                      "Adgrf5", "Adgrg1",
                      "Adgre5", 
                      "Adgre1", "Adgre4",
-                     "Adgrl1", "Adgrl3","Adgrl4"),
+                     "Adgrl1", "Adgrl3","Adgrl4"
+                     ),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
