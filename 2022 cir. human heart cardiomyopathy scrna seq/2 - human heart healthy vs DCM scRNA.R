@@ -7,6 +7,7 @@ library(readxl)
 library(janitor)
 library(stringr)
 library(viridis)
+library(harmony)
 
 ## 0. partition raw csv
 #raw data file 23G, cannot generate seurat directly, 
@@ -64,7 +65,9 @@ metadata_clean <- metadata %>%
   rowwise() %>% 
   mutate(condition = ifelse(str_detect(cell_id, paste(DCM_list, collapse = '|')), ##useful to detect multiple strings
                                     "DCM", "healthy")) %>% 
-  column_to_rownames("cell_id")  ##metadata format compliant
+  column_to_ro
+
+wnames("cell_id")  ##metadata format compliant
 
 save(metadata_clean, file = "processed data/metadata_clean.rdata")
 
@@ -85,7 +88,17 @@ human_dcm <- NormalizeData(human_dcm) %>%
   FindClusters(resolution = 0.6) %>% 
   RunUMAP(dim=1:20)
 
-
+# human_dcm_hmn <- human_dcm %>% 
+#   RunHarmony("condition", plot_convergence = TRUE)
+# 
+# human_dcm_hmn <- human_dcm_hmn %>% 
+#   RunUMAP(reduction = "harmony", dims = 1:20) %>% 
+#   FindNeighbors(reduction = "harmony", dims = 1:20) %>% 
+#   FindClusters(resolution = 0.6) 
+# 
+# DimPlot(human_dcm_hmn, reduction = "umap", label = T)
+#Run harmony change the looks of UMAP,
+#but doesn't change the subset result (still has several clusters for one celltype)
 
 save(human_dcm, file = "processed data/human_dcm_normalized_cluster.rdata")
 
@@ -102,7 +115,7 @@ metadata <- human_dcm@meta.data
 
 DefaultAssay(human_dcm) <- "RNA"
 
-FeaturePlot(human_dcm,
+FeaturePlot(human_dcm_hmn,
             reduction = "umap", 
             features = c("MYBPC3", "RYR2", "TNNT2"), 
             sort.cell = TRUE,
@@ -148,11 +161,13 @@ FeaturePlot(human_dcm,
 
 FeaturePlot(human_dcm,
             reduction = "umap", 
-            features = c("CSF1R", "CD14", "C1QC"), 
+            features = c("CSF1R", "CD14", "C1QC", 
+                         "FCGR1A", "CD68", "LY6G6C"), 
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
 ##6, 10, 13 myeloid
+VlnPlot(human_dcm, features = c("ITGAM", "CD14","FCGR1A", "CD68"), pt.size = 0)
 
 FeaturePlot(human_dcm,
             reduction = "umap", 
@@ -374,3 +389,30 @@ DoHeatmap(human_dcm_EC,
   scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
   theme(text = element_text(size = 20))        
         
+####9. Subsetting MP####
+load("processed data/human_dcm_normalized_cluster.rdata")
+
+human_dcm_mye <- subset(human_dcm, idents = "Myeloid")
+
+rm(human_dcm) #to save RAM
+
+human_dcm_mye <- NormalizeData(human_dcm_mye) %>% 
+  ScaleData()
+
+metadata_mye <- human_dcm_mye@meta.data
+
+#we need to merge cluster, but split by condition
+Idents(human_dcm_mye) <- metadata_mye$condition
+
+levels(human_dcm_mye) <- c("healthy", "DCM")
+
+DotPlot(human_dcm_mye,
+        features = c(#"CD14",
+                     "ADGRF5", "ADGRG1", 
+                     #"ADGRE5", 
+                     "ADGRE1", "ADGRE4", "ADGRA1",
+                     "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
