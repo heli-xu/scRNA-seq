@@ -227,32 +227,43 @@ VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18),
 
 
 
-##subsetting EC
-TIP_MI_EC <- subset(TIP_MI, idents = c(1,9,10))
+##subsetting EC####
+load("data/TIP_MI_hmn_cluster.rdata")
 
-metadata_EC <- TIP_MI_EC@meta.data
-
-Sham_cell <- metadata_EC %>% 
-  rownames_to_column(var = "cell_id") %>% 
-  filter(sample=="Sham") %>% 
-  pull(cell_id)
-
-MI_day7 <- metadata_EC %>% 
-  rownames_to_column(var = "cell_id") %>% 
-  filter(sample=="MI_day7") %>% 
-  pull(cell_id)
-
-##subsetting MP####
-
-MI_MP <- subset(TIP_MI_hmn, idents = c(0, 4, 10, 11, 13, 14)) %>%  
+TIP_MI_EC <- subset(TIP_MI_hmn, idents = c(2, 7, 9,  16, 18)) %>% 
   NormalizeData() %>% 
   ScaleData() 
 
-metadata_mp <- MI_MP@meta.data
+metadata_EC <- TIP_MI_EC@meta.data
 
-Idents(MI_MP) <- metadata_mp$sample
+Idents(TIP_MI_EC) <- metadata_EC$sample
 
-levels(MI_MP) 
+levels(TIP_MI_EC) 
+
+save(TIP_MI_EC, file = "data/MI_EC_normalized.rdata")
+
+DotPlot(TIP_MI_EC,
+        features = c( "Adgrg1","Adgrf5"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TIP_MI_EC, features = c( "Adgrg1","Adgrf5"))
+
+
+##subsetting MP####
+
+TIP_MI_MP <- subset(TIP_MI_hmn, idents = c(0, 4, 10, 11, 13, 14)) %>%  
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_mp <- TIP_MI_MP@meta.data
+
+Idents(TIP_MI_MP) <- metadata_mp$sample
+
+levels(TIP_MI_MP) 
+
+save(TIP_MI_MP, file = "data/MI_MP_normalized.rdata")
 
 DotPlot(MI_MP,
         features = c( "Egfr"),
@@ -261,3 +272,9 @@ DotPlot(MI_MP,
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 VlnPlot(MI_MP, features = "Egfr")
+
+####saving all features as rdata####
+all_features <- rownames(TIP_MI_hmn@assays$RNA@data)
+
+save(all_features, file = "data/all_features_MI.rdata")
+
