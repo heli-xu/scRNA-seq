@@ -12,7 +12,7 @@ library(dplyr)
 library(Seurat)
 library(tidyverse)
 
-load("../healthy MI non myocyte cardiac/data/all_features_MI.rdata")
+load("data/mouse MI/all_features_MI.rdata")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -43,22 +43,39 @@ ui <- fluidPage(
 server <- function(input, output) {
 
   #object name: TIP_MI_EC
-  load("../healthy MI non myocyte cardiac/data/MI_EC_normalized.rdata")
+  load("data/mouse MI/MI_EC_normalized.rdata")
   #TIP_MI_MP
-  load("../healthy MI non myocyte cardiac/data/MI_MP_normalized.rdata")
+  load("data/mouse MI/MI_MP_normalized.rdata")
   
-    output$DotPlot <- renderPlot({
+      output$DotPlot <- renderPlot({
         # select object based on input
+        object_to_plot = NULL
+        if (input$cell == "EC"){object_to_plot = TIP_MI_EC} else 
+          if  (input$cell == "MP"){
+            object_to_plot = TIP_MI_MP
+          }
         
-        
-        DotPlot(TIP_MI_EC,
+        DotPlot(object_to_plot,
                 features = input$gene,
                 col.min = 0, col.max = 3,
                 dot.min = 0, dot.scale = 6)+
           theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
         
+      
 
     })
+      
+      output$ViolinPlot <- renderPlot({
+        # select object based on input
+        object_to_plot = NULL
+        if (input$cell == "EC"){object_to_plot = TIP_MI_EC} else 
+          if  (input$cell == "MP"){
+            object_to_plot = TIP_MI_MP
+          }
+        
+        VlnPlot(object_to_plot, features = input$gene)
+        
+      })
 }
 
 # Run the application 
