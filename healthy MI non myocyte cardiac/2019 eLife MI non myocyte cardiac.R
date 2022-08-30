@@ -243,7 +243,9 @@ levels(TIP_MI_EC)
 save(TIP_MI_EC, file = "data/MI_EC_normalized.rdata")
 
 DotPlot(TIP_MI_EC,
-        features = c( "Adgrg1","Adgrf5"),
+        features = c("Pecam1",
+                     "Adgrf5", "Adgrg1", "Adgrl4", "Adgrl2", 
+                     "Adgre5", "Adgre1", "Adgra2","Adgrd1"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
@@ -265,8 +267,10 @@ levels(TIP_MI_MP)
 
 save(TIP_MI_MP, file = "data/MI_MP_normalized.rdata")
 
-DotPlot(MI_MP,
-        features = c( "Egfr"),
+DotPlot(TIP_MI_MP,
+        features = c(#"Cd14",
+                     "Adgrf5", "Adgrg1", "Adgrl4", "Adgrl2", 
+                     "Adgre5", "Adgre1", "Adgra2","Adgrd1"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
