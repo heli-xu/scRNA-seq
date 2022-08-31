@@ -11,10 +11,10 @@
   loading_screen = div(
     tags$img(
       src = "logo.png",
-      height = 275
+      height = 60
     ),
     div(
-      # style = "padding-top: 50px;",
+      style = "padding-top: 50px;",
       spin_loader()) )
 }
 
@@ -28,19 +28,15 @@ ui <- fluidPage(
   waiterShowOnLoad(html = loading_screen,
                    color = 'white'),
   ## HTML Head
-  tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
-  ),
+  tags$head(includeCSS("CSS/styles.css")),
+  tags$head(includeCSS("CSS/Header.css")),
+  tags$head(includeCSS("CSS/NavbarPage.css")),
   
+  ## Header
+  includeHTML("HTML/Header.html"),
   
-  
-  
-  # Application title
-  # h1('test', id = 'navbar'),
+  # App 
   div(  titlePanel("heart scRNA" ),id = 'navbar'),
-
-  
-  # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
       width = 3,
@@ -55,14 +51,15 @@ ui <- fluidPage(
                   "Cell type:",
                   choices = c("EC", "MP"))
     ),
-    
-    # Show a plot of the generated distribution
     mainPanel(
       width = 9,
       column(6, plotOutput("DotPlot")),
       column(6, plotOutput("ViolinPlot"))
     )
-  )
+  ),
+  
+  ## Footer
+  includeHTML("HTML/Footer.html")
 )
 
 # Define server logic required to draw a histogram
