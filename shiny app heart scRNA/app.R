@@ -1,24 +1,39 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+{
+  ## Dependencies
+  library(shiny)
+  library(dplyr)
+  library(Seurat)
+  library(ggplot2)
+  library(waiter)
 
-library(shiny)
-library(dplyr)
-library(Seurat)
-library(tidyverse)
+  
+  ## Loader code: Global Scope
+  loading_screen = div(
+    tags$img(
+      src = "logo.png",
+      height = 275
+    ),
+    div(
+      # style = "padding-top: 50px;",
+      spin_loader()) )
+}
+
 
 load("data/mouse MI/all_features_MI.rdata")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  ## Loader code: UI (start)
+  useWaiter(),
+  waiterShowOnLoad(html = loading_screen,
+                   color = 'white'),
+  ## HTML Head
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
+  
+  
+  
   
   # Application title
   # h1('test', id = 'navbar'),
@@ -53,10 +68,12 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  #object name: TIP_MI_EC
-  load("data/mouse MI/MI_EC_normalized.rdata")
-  #TIP_MI_MP
-  load("data/mouse MI/MI_MP_normalized.rdata")
+  ## Load data then remove loading screen
+  ## Load data (takes long time)
+  load("data/mouse MI/MI_EC_normalized.rdata") #object name: TIP_MI_EC
+  load("data/mouse MI/MI_MP_normalized.rdata") #TIP_MI_MP
+  waiter_hide()
+  
   
   output$DotPlot <- renderPlot({
     # select object based on input
