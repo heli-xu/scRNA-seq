@@ -25,7 +25,8 @@ ui <- fluidPage(
         sidebarPanel(
             selectInput("gene",
                         "Gene name:",
-                        choices = all_features),
+                        choices = all_features,
+                        selected = "Pecam1"),
             selectInput("cell",
                         "Cell type:",
                         choices = c("EC", "MP"))
