@@ -15,7 +15,10 @@
     ),
     div(
       style = "padding-top: 50px;",
-      spin_loader()) )
+      spin_loader()) ,
+    div("Sorry for the wait! scRNA dataset are large and take a few seconds to load!", id = "intro-note")
+  
+    )
 }
 
 
@@ -30,13 +33,12 @@ ui <- fluidPage(
   ## HTML Head
   tags$head(includeCSS("CSS/styles.css")),
   tags$head(includeCSS("CSS/Header.css")),
-  tags$head(includeCSS("CSS/NavbarPage.css")),
-  
+
   ## Header
   includeHTML("HTML/Header.html"),
   
   # App 
-  div(  titlePanel("heart scRNA" ),id = 'navbar'),
+  div(  titlePanel("Heart scRNA Exploratory Data Tool" ),id = 'navbar'),
   sidebarLayout(
     sidebarPanel(
       width = 3,
