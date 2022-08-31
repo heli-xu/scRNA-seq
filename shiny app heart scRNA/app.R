@@ -23,11 +23,14 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            selectInput("gene",
-                        "Gene name:",
-                        choices = all_features,
-                        selected = "Pecam1"),
-            selectInput("cell",
+          selectInput("dataset",
+                      "Dataset:",
+                      choices = "2019 eLife mouse MI"),
+          selectInput("gene",
+                      "Gene name:",
+                      choices = all_features,
+                      selected = "Pecam1"),
+          selectInput("cell",
                         "Cell type:",
                         choices = c("EC", "MP"))
         ),
@@ -74,7 +77,7 @@ server <- function(input, output) {
             object_to_plot = TIP_MI_MP
           }
         
-        VlnPlot(object_to_plot, features = input$gene)
+        VlnPlot(object_to_plot, features = input$gene, pt.size = 0)
         
       })
 }
