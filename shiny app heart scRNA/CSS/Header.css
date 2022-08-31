@@ -4,6 +4,7 @@
   display: grid;
   grid-template-columns: 100px 1fr 400px;
   align-items: center;
+  margin-bottom: 10px;
 }
 .BCHC_top_row img {
   grid-column: 1/2;
@@ -28,5 +29,5 @@
 /* Util */
 
 .salurbal_hr {
-  border-top: 1px dashed #00bb9e;
+  border-top: 1px dashed #9d2235;
 }
