@@ -16,9 +16,14 @@ load("data/mouse MI/all_features_MI.rdata")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+  ),
   
   # Application title
-  titlePanel("heart scRNA"),
+  # h1('test', id = 'navbar'),
+  div(  titlePanel("heart scRNA" ),id = 'navbar'),
+
   
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
