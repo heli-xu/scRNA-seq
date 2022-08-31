@@ -16,7 +16,7 @@
     div(
       style = "padding-top: 50px;",
       spin_loader()) ,
-    div("Sorry for the wait! scRNA dataset are large and take a few seconds to load!", id = "intro-note")
+    div("Thanks for your patience! scRNA datasets are large and take a few seconds to load!", id = "intro-note")
   
     )
 }
