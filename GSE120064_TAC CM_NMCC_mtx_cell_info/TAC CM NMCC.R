@@ -250,16 +250,20 @@ VlnPlot(TAC_integrated, idents = idents_to_use,
 #not much
 
 
-##subset##
+####subset CM####
 
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
 
 
 TAC_CM <- subset(TAC_CM_NMCC, idents = "CM") %>% 
   NormalizeData() %>% 
+  FindVariableFeatures(selection.method = "vst", 
+                       nfeatures = 2000, verbose = FALSE) %>%
   ScaleData() 
 
-
+##FindVariableFeature significantly reduced TAC_CM size
+#for heatmap, if gene not in variable feature, will not show up, so better to include all features;
+#for dotplot and violin plot, it's fine-will be very small anyway
 
 ##metadata$condition <- factor(metadata$condition, levels = c("0w", "2w", "5w", "8w", "11w"))
 
@@ -270,10 +274,6 @@ TAC_CM <- subset(TAC_CM_NMCC, idents = "CM") %>%
 #even if it's filtered out and not in "cells" argument
 
 
-save(TAC_CM, file = "data/TAC_CM_metadata_celltype.rdata")
-###without levels 
-
-load("data/TAC_CM_metadata.rdata")
 
 metadata_cm <- TAC_CM@meta.data
 
@@ -283,6 +283,11 @@ Idents(TAC_CM) <- metadata_cm$condition
 #set levels for object; this is referring to the idents 
 #(so if you don't set idents, you can't do levels right)
 levels(TAC_CM) <- c("0w", "2w", "5w", "8w", "11w")
+
+
+save(TAC_CM, file = "data/TAC_CM_metadata.rdata")
+###with levels as 0w, 2w, 5w, 8w, 11w
+##scaledata with variable features
 
 
 #cell_0_5w_11w <- metadata %>% 
@@ -315,7 +320,7 @@ DoHeatmap(TAC_CM,
   scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
   theme(text = element_text(size = 20))
 
-DotPlot(TAC_CM_plot,
+DotPlot(TAC_CM,
         features = c("Myh6","Myh7", "Adrb1",
                      "Gpr116", "Gpr56", "Eltd1", "Lphn2", "Cd97", "Gpr124","Gpr133", "Emr1"),
         col.min = 0, col.max = 3,
@@ -330,6 +335,14 @@ DotPlot(TAC_CM_plot,
 
 
 VlnPlot(TAC_CM, features = "Gpr116")
+
+##saving all features as rdata##
+#check if row number match the mother object (TAC_CM_NMCC)
+
+all_features_TAC <- rownames(TAC_CM@assays$RNA@data)
+
+save(all_features_TAC, file = "data/all_features_TAC.rdata")
+
 
 #####taking a brief look at FB#####
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
@@ -361,13 +374,11 @@ DotPlot(TAC_FB,
         dot.min = 0, dot.scale = 6)
 
 #####ADGRs in EC####
-load("data/TAC_CM_NMCC_metadata.rdata")
-
-metadata <- TAC_CM_NMCC@meta.data
-
-Idents(TAC_CM_NMCC) <- metadata$CellType
+load("data/TAC_CM_NMCC_metadata_celltype.rdata")
   
 TAC_EC <- subset(TAC_CM_NMCC, idents = "EC") %>% 
+  FindVariableFeatures(selection.method = "vst", 
+                       nfeatures = 2000, verbose = FALSE) %>%
   NormalizeData() %>% 
   ScaleData() 
 
@@ -376,6 +387,8 @@ metadata_ec <- TAC_EC@meta.data
 Idents(TAC_EC) <- metadata_ec$condition
 
 levels(TAC_EC) <- c("0w", "2w", "5w", "8w", "11w")
+
+save(TAC_EC, file = "data/TAC_EC_metadata.rdata")
 
 DoHeatmap(TAC_EC, 
           features = c("Pecam1",
@@ -407,6 +420,8 @@ metadata <- TAC_CM_NMCC@meta.data
 
 TAC_MP <- subset(TAC_CM_NMCC, idents = "MP") %>% 
   NormalizeData() %>% 
+  FindVariableFeatures(selection.method = "vst", 
+                       nfeatures = 2000, verbose = FALSE) %>%
   ScaleData() 
 
 metadata_mp <- TAC_MP@meta.data
@@ -414,6 +429,8 @@ metadata_mp <- TAC_MP@meta.data
 Idents(TAC_MP) <- metadata_mp$condition
 
 levels(TAC_MP) <- c("0w", "2w", "5w", "8w", "11w")
+
+save(TAC_MP, file = "data/TAC_MP_metadata.rdata")
 
 DoHeatmap(TAC_MP, 
           features = c("Cd14",
