@@ -119,7 +119,7 @@ FeaturePlot(TIP_MI_hmn,
 VlnPlot(TIP_MI_hmn, 
         features = c("Pecam1","Icam2","Cdh5"),
         pt.size = 0)
-##EC 2, 7, 9,  16, 18, 
+##EC 2, 7, 9, 12, (15,) 18, 19
 
 FeaturePlot(TIP_MI_hmn,
             reduction = "tsne",
@@ -136,9 +136,11 @@ VlnPlot(TIP_MI_hmn,
 ###LEC markers 
 #not very clear
 VlnPlot(TIP_MI_hmn, 
-        features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b"),
+        features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
+                     "Lyve1", "Fth1"),
        # split.by = "sample",
-        idents = c(2, 7, 9,  16, 18))
+        idents = c(2, 7, 9, 12, 15, 18, 19))
+##12, 15, 18
 
 VlnPlot(TIP_MI_hmn, 
         features = c("Pecam1","Ptprc","Cd68","Adgre1","Pdpn"),
@@ -230,7 +232,7 @@ VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18),
 ##subsetting EC####
 load("data/TIP_MI_hmn_cluster.rdata")
 
-TIP_MI_EC <- subset(TIP_MI_hmn, idents = c(2, 7, 9,  16, 18)) %>% 
+TIP_MI_EC <- subset(TIP_MI_hmn, idents = c(2, 7, 9, 12, 15, 18, 19)) %>% 
   NormalizeData() %>% 
   ScaleData() 
 
@@ -252,8 +254,41 @@ DotPlot(TIP_MI_EC,
 
 VlnPlot(TIP_MI_EC, features = c( "Adgrg1","Adgrf5"))
 
+##subset LEC####
+TIP_MI_LEC <- subset(TIP_MI_hmn, idents = c(12, 15, 18)) %>% 
+  NormalizeData() %>% 
+  ScaleData() 
 
-##subsetting MP####
+metadata_LEC <- TIP_MI_LEC@meta.data
+
+Idents(TIP_MI_LEC) <- metadata_LEC$sample
+
+levels(TIP_MI_LEC) 
+
+DotPlot(TIP_MI_LEC,
+        features = c("Pecam1",
+                     "Adgra2", "Adgra3", "Adgre5", "Adgrg3", 
+                     "Adgre1", "Adgrf5","Adgrg1", "Adgrl2",
+                     "Adgrl4"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TIP_MI_LEC, 
+        features = c("Adgra2", "Adgra3", "Adgre5", "Adgrg3", 
+                     "Adgre1", "Adgrf5","Adgrg1", "Adgrl2",
+                     "Adgrl4"),
+        pt.size=0)
+
+##if checking individual cluster###
+VlnPlot(TIP_MI_hmn, features =c("Adgra2", "Adgra3", "Adgre5", "Adgrg3", 
+                                "Adgre1", "Adgrf5","Adgrg1", "Adgrl2",
+                                "Adgrl4"),
+        split.by = "sample",
+        idents = 12,
+        pt.size=0)
+
+####subsetting MP####
 
 TIP_MI_MP <- subset(TIP_MI_hmn, idents = c(0, 4, 10, 11, 13, 14)) %>%  
   NormalizeData() %>% 
