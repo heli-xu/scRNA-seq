@@ -374,7 +374,7 @@ DotPlot(TAC_FB,
         dot.min = 0, dot.scale = 6)
 
 #####ADGRs in EC####
-load("data/TAC_CM_NMCC_metadata_celltype.rdata")
+load("data/TAC_CM_NMCC_metadata.rdata")
   
 TAC_EC <- subset(TAC_CM_NMCC, idents = "EC") %>% 
   FindVariableFeatures(selection.method = "vst", 
@@ -411,6 +411,42 @@ DotPlot(TAC_EC,
 
 VlnPlot(TAC_EC, features = "Gpr116")
 VlnPlot(TAC_EC, features = "Eltd1")
+
+
+####LEC exploration####
+#continued from above
+
+Idents(TAC_EC) <- metadata_ec$SubCluster
+
+VlnPlot(TAC_EC, features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
+                                  "Lyve1", "Fth1"),
+        pt.size = 0)
+##EC2,3,8
+
+TAC_LEC <- subset(TAC_EC, idents = c("EC2", "EC3", "EC8")) %>% 
+  NormalizeData() %>% 
+  ScaleData() 
+
+metadata_lec <- TAC_LEC@meta.data
+
+Idents(TAC_LEC) <- metadata_lec$condition
+
+levels(TAC_LEC) <- c("0w", "2w", "5w", "8w", "11w")
+
+DotPlot(TAC_LEC,
+        features = c("Pecam1",
+                     "Gpr124", "Gpr125", "Cd97", "Gpr97", 
+                     "Emr1", "Gpr116","Gpr56", "Lphn2",
+                     "Eltd1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+VlnPlot(TAC_LEC, 
+        features = c("Gpr124", "Gpr125", "Cd97", "Gpr97", 
+                     "Emr1", "Gpr116","Gpr56", "Lphn2",
+                     "Eltd1"),
+        pt.size=0)
 
 #####ADGRs in MP####
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
