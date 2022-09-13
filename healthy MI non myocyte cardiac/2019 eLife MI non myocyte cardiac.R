@@ -142,6 +142,8 @@ VlnPlot(TIP_MI_hmn,
         idents = c(2, 7, 9, 12, 15, 18, 19))
 ##12, 15, 18
 
+
+
 VlnPlot(TIP_MI_hmn, 
         features = c("Pecam1","Ptprc","Cd68","Adgre1","Pdpn"),
         pt.size = 0)
@@ -202,6 +204,13 @@ VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrl3", split.by = "sample")
 VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrl4", split.by = "sample")
 VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrv1", split.by = "sample")
 
+ADGR_list <- c("Adgra1", "Adgra2","Adgra3", "Adgrb1","Adgrb2", "Adgrb3",
+               "Adgrc3","Adgrc1", "Adgrc2", "Adgrd1", "Adgrd2", "Adgre1",
+               "Adgre2", "Adgre3", "Adgre4", "Adgre5", "Adgrf1", "Adgrf2",
+               "Adgrf3", "Adgrf4","Adgrf5","Adgrg1","Adgrg2","Adgrg3",
+               "Adgrg4", "Adgrg5", "Adgrg6", "Adgrg7","Adgrl1", "Adgrl2",
+               "Adgrl3", "Adgrl4", "Adgrv1")
+
 VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18),
         pt.size = 0,
         features= c("Ccl21a", "Mmrn1","Fgl2",
@@ -233,7 +242,6 @@ VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18),
 load("data/TIP_MI_hmn_cluster.rdata")
 
 TIP_MI_EC <- subset(TIP_MI_hmn, idents = c(2, 7, 9, 12, 15, 18, 19)) %>% 
-  NormalizeData() %>% 
   ScaleData() 
 
 metadata_EC <- TIP_MI_EC@meta.data
@@ -255,6 +263,13 @@ DotPlot(TIP_MI_EC,
 VlnPlot(TIP_MI_EC, features = c( "Adgrg1","Adgrf5"))
 
 ##subset LEC####
+VlnPlot(TIP_MI_EC, 
+        features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
+                     "Lyve1", "Fth1"),
+        pt.size = 0)
+        # split.by = "sample"
+
+
 TIP_MI_LEC <- subset(TIP_MI_hmn, idents = c(12, 15, 18)) %>% 
   NormalizeData() %>% 
   ScaleData() 
@@ -264,6 +279,10 @@ metadata_LEC <- TIP_MI_LEC@meta.data
 Idents(TIP_MI_LEC) <- metadata_LEC$sample
 
 levels(TIP_MI_LEC) 
+
+save(TIP_MI_LEC, file = "data/MI_LEC_normalized.rdata")
+
+FeaturePlot(TIP_MI_LEC, features = ADGR_list, )
 
 DotPlot(TIP_MI_LEC,
         features = c("Pecam1",
