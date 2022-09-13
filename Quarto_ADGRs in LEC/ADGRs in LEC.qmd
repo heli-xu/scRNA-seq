@@ -1,0 +1,53 @@
+---
+title: "ADGRs in lymphatic endothelial cells in scRNA-seq datasets"
+author: "Heli Xu"
+format: html
+editor: visual
+---
+
+## Dataset1: postMI mice heart non-CM
+
+Publication source <https://elifesciences.org/articles/43882>.
+
+### Markers used to define LEC
+
+The paper did not include cell type information in the dataset, so we will use established markers to define endothelial cells (EC) and lymphatic endothelial cells (LEC).
+
+EC markers used include: Pecam1, Icam2, Cdh5 (code or image to be added)
+
+```{r}
+#dependencies 
+```
+
+Based on the plot, we'll define cluster 2, 7, 9, 12, 15, 18, 19 as EC.
+
+Among them, we'll use LEC lineage markers to identify possible LEC populations. Markers used include: Pdpn, Flt4, Prox1, Ackr4, Msr1, Fcgr2b, Lyve1, Fth1
+
+```{r}
+load("data/MI_EC_normalized.rdata")
+##this is EC subset without changing idents to "sample"!
+
+VlnPlot(TIP_MI_EC, 
+        features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
+                     "Lyve1", "Fth1"),
+        pt.size = 0)
+
+```
+
+It looks like the cluster 12, 15, 18 are likely to be LEC. Firstly, we'll plot all the ADGRs in EC, keeping the LEC clusters in mind. 
+
+```{r}
+ADGR_list <- c("Adgra1", "Adgra2","Adgra3", "Adgrb1","Adgrb2", "Adgrb3",
+               "Adgrc3","Adgrc1", "Adgrc2", "Adgrd1", "Adgrd2", "Adgre1",
+               "Adgre2", "Adgre3", "Adgre4", "Adgre5", "Adgrf1", "Adgrf2",
+               "Adgrf3", "Adgrf4","Adgrf5","Adgrg1","Adgrg2","Adgrg3",
+               "Adgrg4", "Adgrg5", "Adgrg6", "Adgrg7","Adgrl1", "Adgrl2",
+               "Adgrl3", "Adgrl4", "Adgrv1")
+
+FeaturePlot(TIP_MI_EC,
+            reduction = "tsne",
+            features= ADGR_list,
+            sort.cell = TRUE,
+            min.cutoff = 'q10',
+            label = TRUE)
+
