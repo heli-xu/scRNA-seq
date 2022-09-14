@@ -7,7 +7,7 @@ library(harmony)
 
 ####import data and clustering####
 
-load("data/sparce_matrix_TIP_ShamVsMI_days3_7.rdata")
+load("raw/sparce_matrix_TIP_ShamVsMI_days3_7.rdata")
 
 TIP_MI <- CreateSeuratObject(counts=sparce_matrix_TIP_ShamVsMI_days3_7,project = "2019Farbehi",
                              min.cells = 3,min.features = 200)
@@ -47,10 +47,10 @@ TIP_MI <- FindNeighbors(TIP_MI, dims = 1:30) %>%
 
 DimPlot(TIP_MI, reduction = "tsne", split.by = "sample")
 
-save(TIP_MI,file = "data/TIP_MI_cluster.rdata")
+save(TIP_MI,file = "clean/TIP_MI_cluster.rdata")
 ##cluster, no integration
 
-load("data/TIP_MI_cluster.rdata")
+load("clean/TIP_MI_cluster.rdata")
 
 DimPlot(TIP_MI, reduction = "pca", group.by = "sample")
 #not much separation by sample
@@ -70,7 +70,7 @@ TIP_MI_hmn <- TIP_MI_hmn %>%
 
 DimPlot(TIP_MI_hmn, reduction = "tsne", split.by = "sample", label = T)
 
-save(TIP_MI_hmn, file = "data/TIP_MI_hmn_cluster.rdata")
+save(TIP_MI_hmn, file = "clean/TIP_MI_hmn_cluster.rdata")
 
 ####id clusters by markers####
 
@@ -157,52 +157,7 @@ VlnPlot(TIP_MI_hmn,
         group.by = "sample",
         idents = 16)
 
-#######explore ADGRs in EC#########
-#need updating with TIP_MI_hmn and new idents
-
-VlnPlot(TIP_MI, idents=c(1,9,10),
-        features= "Adgra1", 
-        split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgra2", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgra3", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrb1", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrb2", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrb3", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrc3", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrc1", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrc2", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrd1", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrd2", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgre1", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgre2", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgre3", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgre4", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgre5", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrf1", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrf2", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrf3", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrf4", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrf5", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg1", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg2", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg3", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg4", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg5", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg6", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrg7", split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrl1", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrl2", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrl3", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrl4", split.by = "sample")
-VlnPlot(TIP_MI, idents=c(1,9,10),features= "Adgrv1", split.by = "sample")
+###explore ADGRs in EC#########
 
 ADGR_list <- c("Adgra1", "Adgra2","Adgra3", "Adgrb1","Adgrb2", "Adgrb3",
                "Adgrc3","Adgrc1", "Adgrc2", "Adgrd1", "Adgrd2", "Adgre1",
@@ -217,32 +172,18 @@ VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18),
                     "Prss23","Thy1", "Igfbp5",
                     "Fth1","Lyve1","Prelp"),
         split.by = "sample")
+#LEC markers
 
 
-VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18,23,24),
-        features= c("Adgre1","Adgre5","Adgrf5",
-                    "Adgrg1","Adgrl2","Adgrl4"),
-        pt.size = 0.2,
-        split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18,23,24),
-        features=c("Adgra2","Adgra3","Adgrg3","Cd68"),
-        split.by = "sample")
-
-VlnPlot(TIP_MI, idents=c(1,9,10,11,15,18),
-        pt.size = 0,
-        features=c("Adgra2","Adgra3","Adgre5","Adgrg3",
-                   "Adgre1","Adgrf5",
-                   "Adgrg1","Adgrl2","Adgrl4"),
-        split.by = "sample")
-
-
-
-##subsetting EC####
-load("data/TIP_MI_hmn_cluster.rdata")
+#####subsetting EC####
+load("clean/TIP_MI_hmn_cluster.rdata")
 
 TIP_MI_EC <- subset(TIP_MI_hmn, idents = c(2, 7, 9, 12, 15, 18, 19)) %>% 
   ScaleData() 
+
+save(TIP_MI_EC, file = "clean/MI_EC_orig_ident.rdata")
+##same object name as that with ident changed to sample (below), 
+#so don't load them together
 
 metadata_EC <- TIP_MI_EC@meta.data
 
@@ -250,7 +191,7 @@ Idents(TIP_MI_EC) <- metadata_EC$sample
 
 levels(TIP_MI_EC) 
 
-save(TIP_MI_EC, file = "data/MI_EC_normalized.rdata")
+save(TIP_MI_EC, file = "clean/MI_EC_normalized.rdata")
 
 DotPlot(TIP_MI_EC,
         features = c("Pecam1",
@@ -262,16 +203,33 @@ DotPlot(TIP_MI_EC,
 
 VlnPlot(TIP_MI_EC, features = c( "Adgrg1","Adgrf5"))
 
-##subset LEC####
+#####subset LEC####
+load("clean/MI_EC_orig_ident.rdata")
+
 VlnPlot(TIP_MI_EC, 
         features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
                      "Lyve1", "Fth1"),
         pt.size = 0)
         # split.by = "sample"
 
+FeaturePlot(TIP_MI_EC, 
+            reduction = "tsne", 
+            features= ADGR_list, 
+            sort.cell = TRUE, 
+            min.cutoff = 'q10', 
+            ncol = 3,
+            label = TRUE)
+#plotting in all EC to put it in perspective 
+
+VlnPlot(TIP_MI_EC,
+        features= c("Adgra2", "Adgra3", "Adgrb1", 
+                    "Adgre1", "Adgre5", "Adgrf5", 
+                    "Adgrg1", "Adgrg3", "Adgrl1", 
+                    "Adgrl2", "Adgrl4"))
+
 
 TIP_MI_LEC <- subset(TIP_MI_hmn, idents = c(12, 15, 18)) %>% 
-  NormalizeData() %>% 
+  #NormalizeData() %>%  not needed after subset if normalization done before
   ScaleData() 
 
 metadata_LEC <- TIP_MI_LEC@meta.data
@@ -280,7 +238,7 @@ Idents(TIP_MI_LEC) <- metadata_LEC$sample
 
 levels(TIP_MI_LEC) 
 
-save(TIP_MI_LEC, file = "data/MI_LEC_normalized.rdata")
+save(TIP_MI_LEC, file = "clean/MI_LEC_normalized.rdata")
 
 FeaturePlot(TIP_MI_LEC, features = ADGR_list, )
 
@@ -319,7 +277,7 @@ Idents(TIP_MI_MP) <- metadata_mp$sample
 
 levels(TIP_MI_MP) 
 
-save(TIP_MI_MP, file = "data/MI_MP_normalized.rdata")
+save(TIP_MI_MP, file = "clean/MI_MP_normalized.rdata")
 
 DotPlot(TIP_MI_MP,
         features = c(#"Cd14",
@@ -334,5 +292,5 @@ VlnPlot(MI_MP, features = "Egfr")
 ####saving all features as rdata####
 all_features <- rownames(TIP_MI_hmn@assays$RNA@data)
 
-save(all_features, file = "data/all_features_MI.rdata")
+save(all_features, file = "clean/all_features_MI.rdata")
 
