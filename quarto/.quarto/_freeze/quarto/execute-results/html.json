@@ -1,0 +1,16 @@
+{
+  "hash": "9392c94cbdbfbf79a88ff4a8dff60d5e",
+  "result": {
+    "markdown": "---\ntitle: \"ADGRs in lymphatic endothelial cells in scRNA-seq datasets\"\nauthor: \"Heli Xu\"\nformat: html\neditor: visual\nexecute: \n  eval: false\n---\n\n\n## Dataset1: postMI mice heart non-CM\n\nPublication source <https://elifesciences.org/articles/43882>.\n\n### Markers used to define LEC\n\nThe paper did not include cell type information in the dataset, so we will use established markers to define endothelial cells (EC) and lymphatic endothelial cells (LEC).\n\nEC markers used include: Pecam1, Icam2, Cdh5 (code or image to be added)\n\n\n::: {.cell}\n\n```{.r .cell-code}\n#dependencies \n```\n:::\n\n\nBased on the plot, we'll define cluster 2, 7, 9, 12, 15, 18, 19 as EC.\n\nAmong them, we'll use LEC lineage markers to identify possible LEC populations. Markers used include: Pdpn, Flt4, Prox1, Ackr4, Msr1, Fcgr2b, Lyve1, Fth1\n\n\n::: {.cell}\n\n```{.r .cell-code}\nload(\"../data/MI_EC_normalized.rdata\")\n##this is EC subset without changing idents to \"sample\"!\n\nVlnPlot(TIP_MI_EC, \n        features = c(\"Pdpn\",\"Flt4\",\"Prox1\",\"Ackr4\",\"Msr1\",\"Fcgr2b\", \n                     \"Lyve1\", \"Fth1\"),\n        pt.size = 0)\n```\n:::\n\n\nIt looks like the cluster 12, 15, 18 are likely to be LEC. Firstly, we'll plot all the ADGRs (33 in total) in EC to put it in perspective. (When all cells show same value of expression for a gene, it usually means the gene is minimally expressed, and therefore with scaling the values become quite indistinguishable. )\n\n\n::: {.cell}\n\n```{.r .cell-code}\nADGR_list <- c(\"Adgra1\", \"Adgra2\",\"Adgra3\", \"Adgrb1\",\"Adgrb2\", \"Adgrb3\", \"Adgrc3\",\"Adgrc1\", \"Adgrc2\", \"Adgrd1\", \"Adgrd2\", \"Adgre1\", \"Adgre2\", \"Adgre3\", \"Adgre4\", \"Adgre5\", \"Adgrf1\", \"Adgrf2\", \"Adgrf3\", \"Adgrf4\",\"Adgrf5\",\"Adgrg1\",\"Adgrg2\",\"Adgrg3\", \"Adgrg4\", \"Adgrg5\", \"Adgrg6\", \"Adgrg7\",\"Adgrl1\", \"Adgrl2\", \"Adgrl3\", \"Adgrl4\", \"Adgrv1\")\n\nFeaturePlot(TIP_MI_EC, \n            reduction = \"tsne\", \n            features= ADGR_list, \n            sort.cell = TRUE, \n            min.cutoff = 'q10', \n            ncol = 3,\n            label = TRUE)\n```\n:::\n\n\nOther than the 11 undetectable ADGRs, several ADGRs show very low expression level (in few cells) in the plot above. We'll narrow the list down (Adgra2, Adgra3, Adgrb1, Adgre1, Adgre5, Adgrf5, Adgrg1, Adgrg3, Adgrl1, Adgrl2, Adgrl4) and look further below.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nVlnPlot(TIP_MI_EC,\n        features= c(\"Adgra2\", \"Adgra3\", \"Adgrb1\", \n                    \"Adgre1\", \"Adgre5\", \"Adgrf5\", \n                    \"Adgrg1\", \"Adgrg3\",\"Adgrl1\", \n                    \"Adgrl2\", \"Adgrl4\"))\n```\n:::\n\n\nWe'll remove Adgrb1 here too.\n",
+    "supporting": [
+      "quarto_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
