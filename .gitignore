@@ -1,5 +1,5 @@
-/TAC scRNA CD45/data
-/TAC scRNA CD45/raw
+clean/
+raw/
 
 # History files
 .Rhistory
@@ -51,3 +51,4 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 shiny app heart scRNA/data/*
+shiny/R/server_data.rdata

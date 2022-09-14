@@ -5,7 +5,8 @@
   library(Seurat)
   library(ggplot2)
   library(waiter)
-
+  library(tidyverse)
+  
   
   ## Loader code: Global Scope
   loading_screen = div(
@@ -17,13 +18,12 @@
       style = "padding-top: 50px;",
       spin_loader()) ,
     div("Thanks for your patience! scRNA datasets are large and take a few seconds to load!", id = "intro-note")
-  
-    )
+    
+  )
 }
 
 
-load("data/mouse MI/all_features_MI.rdata")
-load("data/mouse TAC/all_features_MI.rdata")
+load("R/ui_features.rdata")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -34,7 +34,7 @@ ui <- fluidPage(
   ## HTML Head
   tags$head(includeCSS("CSS/styles.css")),
   tags$head(includeCSS("CSS/Header.css")),
-
+  
   ## Header
   includeHTML("HTML/Header.html"),
   
@@ -47,13 +47,15 @@ ui <- fluidPage(
                   "Dataset:",
                   choices = c("2019 eLife mouse MI", 
                               "2020 Circulation mouse TAC"),
+                  selected = "2019 eLife mouse MI"),
       selectInput("gene",
                   "Gene name:",
-                  choices = all_features,
+                  choices = " ",
                   selected = "Pecam1"),
       selectInput("cell",
                   "Cell type:",
-                  choices = c("EC", "MP"))
+                  choices = c("EC", "MP"),
+                  selected = "EC")
     ),
     mainPanel(
       width = 9,
@@ -67,24 +69,30 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  observeEvent(input$dataset,
+               updateSelectInput(session, "gene", "Gene name:",
+                                 choices = ui_features$gene[ui_features$dataset == input$dataset],
+                                 selected = "Pecam1")
+  )
+  
   
   ## Load data then remove loading screen
   ## Load data (takes long time)
-  load("data/mouse MI/MI_EC_normalized.rdata") #object name: TIP_MI_EC
-  load("data/mouse MI/MI_MP_normalized.rdata") #TIP_MI_MP
+  load("R/server_data.rdata")
+  
   waiter_hide()
   
   
   output$DotPlot <- renderPlot({
-    # select object based on input
-    object_to_plot = NULL
-    if (input$cell == "EC"){object_to_plot = TIP_MI_EC} else 
-      if  (input$cell == "MP"){
-        object_to_plot = TIP_MI_MP
-      }
+    object_to_plot = server_data %>% 
+      filter(dataset == input$dataset,
+             cell == input$cell) %>% 
+      pull(obj)
     
-    DotPlot(object_to_plot,
+    
+    DotPlot(object_to_plot[[1]],
             features = input$gene,
             col.min = 0, col.max = 3,
             dot.min = 0, dot.scale = 6)+
@@ -95,14 +103,12 @@ server <- function(input, output) {
   })
   
   output$ViolinPlot <- renderPlot({
-    # select object based on input
-    object_to_plot = NULL
-    if (input$cell == "EC"){object_to_plot = TIP_MI_EC} else 
-      if  (input$cell == "MP"){
-        object_to_plot = TIP_MI_MP
-      }
+    object_to_plot = server_data %>% 
+      filter(dataset == input$dataset,
+             cell == input$cell) %>% 
+      pull(obj)
     
-    VlnPlot(object_to_plot, features = input$gene, pt.size = 0)
+    VlnPlot(object_to_plot[[1]], features = input$gene, pt.size = 0)
     
   })
 }
