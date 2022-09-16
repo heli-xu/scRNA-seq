@@ -4,6 +4,7 @@ library(Matrix)
 library(tidyverse)
 library(readr)
 library(harmony)
+library(ggplot2)
 
 ####import data and clustering####
 
@@ -140,7 +141,7 @@ VlnPlot(TIP_MI_hmn,
                      "Lyve1", "Fth1"),
        # split.by = "sample",
         idents = c(2, 7, 9, 12, 15, 18, 19))
-##12, 15, 18
+##9, 15
 
 
 
@@ -209,15 +210,23 @@ load("clean/MI_EC_orig_ident.rdata")
 VlnPlot(TIP_MI_EC, 
         features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
                      "Lyve1", "Fth1"),
-        pt.size = 0)
+        pt.size = 0.1)
         # split.by = "sample"
+
+DotPlot(TIP_MI_EC,
+        features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
+                     "Lyve1"),
+        col.min = 0, col.max = 3,
+        dot.min = 0, dot.scale = 6)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
 
 FeaturePlot(TIP_MI_EC, 
             reduction = "tsne", 
             features= ADGR_list, 
             sort.cell = TRUE, 
             min.cutoff = 'q10', 
-            ncol = 3,
+            ncol = 4,
             label = TRUE)
 #plotting in all EC to put it in perspective 
 
@@ -228,9 +237,10 @@ VlnPlot(TIP_MI_EC,
                     "Adgrl2", "Adgrl4"))
 
 
-TIP_MI_LEC <- subset(TIP_MI_hmn, idents = c(12, 15, 18)) %>% 
+TIP_MI_LEC <- subset(TIP_MI_EC, idents = c(9, 15)) %>% 
   #NormalizeData() %>%  not needed after subset if normalization done before
   ScaleData() 
+ 
 
 metadata_LEC <- TIP_MI_LEC@meta.data
 
@@ -240,31 +250,42 @@ levels(TIP_MI_LEC)
 
 save(TIP_MI_LEC, file = "clean/MI_LEC_normalized.rdata")
 
-FeaturePlot(TIP_MI_LEC, features = ADGR_list, )
+
 
 DotPlot(TIP_MI_LEC,
-        features = c("Pecam1",
-                     "Adgra2", "Adgra3", "Adgre5", "Adgrg3", 
-                     "Adgre1", "Adgrf5","Adgrg1", "Adgrl2",
-                     "Adgrl4"),
+        features = c("Adgra2", "Adgra3", "Adgrb1", 
+                       "Adgre1", "Adgre5", "Adgrf5", 
+                       "Adgrg1", "Adgrg3", "Adgrl1", 
+                       "Adgrl2", "Adgrl4"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 VlnPlot(TIP_MI_LEC, 
-        features = c("Adgra2", "Adgra3", "Adgre5", "Adgrg3", 
-                     "Adgre1", "Adgrf5","Adgrg1", "Adgrl2",
-                     "Adgrl4"),
-        pt.size=0)
+        features = c("Adgra2", "Adgra3","Adgrb1", 
+                     "Adgre1", "Adgre5", "Adgrf5", 
+                     "Adgrg1", "Adgrg3", "Adgrl1", 
+                     "Adgrl2", "Adgrl4"),
+        pt.size=0.1)
 
 ##if checking individual cluster###
-VlnPlot(TIP_MI_hmn, features =c("Adgra2", "Adgra3", "Adgre5", "Adgrg3", 
-                                "Adgre1", "Adgrf5","Adgrg1", "Adgrl2",
-                                "Adgrl4"),
-        split.by = "sample",
-        idents = 12,
-        pt.size=0)
+VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1", 
+                                "Adgre1", "Adgre5", "Adgrf5", 
+                                "Adgrg1", "Adgrg3", "Adgrl1", 
+                                "Adgrl2", "Adgrl4"),
+        idents = 9,
+        group.by = "sample", #split.by doesn't show legend with multiple features
+        pt.size=0.1)
 
+#same as subsetting one single cluster and scale again
+
+VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1", 
+                                 "Adgre1", "Adgre5", "Adgrf5", 
+                                 "Adgrg1", "Adgrg3", "Adgrl1", 
+                                 "Adgrl2", "Adgrl4"),
+        idents = 15,
+        group.by = "sample",
+        pt.size=0.1)
 ####subsetting MP####
 
 TIP_MI_MP <- subset(TIP_MI_hmn, idents = c(0, 4, 10, 11, 13, 14)) %>%  
