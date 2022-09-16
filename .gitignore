@@ -1,5 +1,7 @@
 clean/
 raw/
+_freeze/
+quarto_files/
 
 # History files
 .Rhistory
