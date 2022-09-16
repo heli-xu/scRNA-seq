@@ -374,8 +374,8 @@ DotPlot(TAC_FB,
         dot.min = 0, dot.scale = 6)
 
 #####ADGRs in EC####
-load("data/TAC_CM_NMCC_metadata.rdata")
-  
+load("data/TAC_CM_NMCC_metadata_celltype.rdata")
+
 TAC_EC <- subset(TAC_CM_NMCC, idents = "EC") %>% 
   FindVariableFeatures(selection.method = "vst", 
                        nfeatures = 2000, verbose = FALSE) %>%
@@ -416,15 +416,55 @@ VlnPlot(TAC_EC, features = "Eltd1")
 ####LEC exploration####
 #continued from above
 
-Idents(TAC_EC) <- metadata_ec$SubCluster
+load("clean/TAC_integrarted_celltype.rdata") 
 
-VlnPlot(TAC_EC, features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
+EC <- subset(TAC_integrated, idents = "EC") %>% 
+  ScaleData()
+##need reduction information for featureplot, so here subsetting again 
+
+metadata_ec <- EC@meta.data
+
+Idents(EC) <- metadata_ec$SubCluster
+
+levels(EC) <- c("EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "EC7", "EC8", "EC9")
+
+DefaultAssay(EC) <- "RNA"
+
+save(EC, file = "clean/TAC_EC_umap.rdata")
+##bigger size, only necessary if featureplot is needed
+#subcluster as ident, in order EC1-EC9 
+
+VlnPlot(EC, features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b", 
                                   "Lyve1", "Fth1"),
-        pt.size = 0)
+        pt.size = 0.1)
 ##EC2,3,8
 
+ADGR_list_oldname <- c("Gpr123", "Gpr124", "Gpr125", 
+                       "Bai1", "Bai2", "Bai3",
+                       "Cselr1", "Cselr2", "Cselr3",
+                       "Gpr133", "Gpr144",
+                       "Emr1", "Emr2", "Emr3", "Emr4", "Cd97",
+                       'Gpr110', "Gpr111", "Gpr113", "Gpr115", "Gpr116",
+                       "Gpr56", "Gpr64", "Gpr97", "Gpr112", "Gpr114", 'Gpr126', "Gpr128",
+                       'Lphn1', 'Lphn2', 'Lphn3', "Eltd1", "Vlgr1")
+
+
+FeaturePlot(EC, 
+            reduction = "umap", 
+            features= ADGR_list_oldname,
+            sort.cell = TRUE, 
+            min.cutoff = 'q10')
+            #label = TRUE) 
+##Gpr124, GPr125, Emr1, Cd97, Gpr116, Gpr56, Lphn1, Lphn2, Eltd1
+
+VlnPlot(EC, features = c("Gpr123", "Bai1", "Bai2",
+                         "Bai3", "Gpr133", "Emr4", "Gpr110",
+                         "Gpr111", "Gpr113", "Gpr115", "Gpr64", 
+                         'Gpr97', 'Gpr112', 'Gpr114', "Gpr126", "Gpr128", 'Lphn3'))
+##Gpr113, Gpr97, Gpr126, Lphn3 keep
+
 TAC_LEC <- subset(TAC_EC, idents = c("EC2", "EC3", "EC8")) %>% 
-  NormalizeData() %>% 
+ # NormalizeData() %>% 
   ScaleData() 
 
 metadata_lec <- TAC_LEC@meta.data
@@ -433,20 +473,52 @@ Idents(TAC_LEC) <- metadata_lec$condition
 
 levels(TAC_LEC) <- c("0w", "2w", "5w", "8w", "11w")
 
+save(TAC_LEC, file = "clean/TAC_LEC_metadata.rdata")
+
 DotPlot(TAC_LEC,
-        features = c("Pecam1",
-                     "Gpr124", "Gpr125", "Cd97", "Gpr97", 
-                     "Emr1", "Gpr116","Gpr56", "Lphn2",
-                     "Eltd1"),
+        features = c("Emr1",  "Cd97",
+                     "Gpr113",  "Gpr116",
+                     "Gpr56", "Gpr97",  'Gpr126', 
+                     'Lphn1', 'Lphn2', 'Lphn3', "Eltd1"),
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
 VlnPlot(TAC_LEC, 
-        features = c("Gpr124", "Gpr125", "Cd97", "Gpr97", 
-                     "Emr1", "Gpr116","Gpr56", "Lphn2",
-                     "Eltd1"),
-        pt.size=0)
+        features = c("Emr1",  "Cd97",
+                     "Gpr113",  "Gpr116",
+                     "Gpr56", "Gpr97",  'Gpr126', 
+                     'Lphn1', 'Lphn2', 'Lphn3', "Eltd1"),
+        pt.size=0.1)
+
+##examine ADGRs in individual cluster 
+Idents(TAC_LEC) <- metadata_lec$SubCluster
+
+VlnPlot(TAC_LEC,
+        features = c("Emr1",  "Cd97",
+                     "Gpr113",  "Gpr116",
+                     "Gpr56", "Gpr97",  'Gpr126', 
+                     'Lphn1', 'Lphn2', 'Lphn3', "Eltd1"),
+        idents = "EC2",
+        group.by = "condition")
+#only one condition (0w) show expression
+
+TAC_LEC8 <- subset(TAC_LEC, idents = "EC8") %>% 
+  ScaleData()
+
+metadata_lec8 <- TAC_LEC8@meta.data
+
+Idents(TAC_LEC8) <- metadata_lec8$condition
+
+levels(TAC_LEC8) <- c("0w", "2w", "5w", "8w", "11w")
+
+save(TAC_LEC8, file = "clean/TAC_LEC_cluster8_condition.rdata")
+
+VlnPlot(TAC_LEC8,
+        features = c("Emr1",  "Cd97",
+                     "Gpr113",  "Gpr116",
+                     "Gpr56", "Gpr97",  'Gpr126', 
+                     'Lphn1', 'Lphn2', 'Lphn3', "Eltd1"))
 
 #####ADGRs in MP####
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
