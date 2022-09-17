@@ -39,14 +39,13 @@ ui <- fluidPage(
   includeHTML("HTML/Header.html"),
   
   # App 
-  div(  titlePanel("Heart scRNA Exploratory Data Tool" ),id = 'navbar'),
+  div(  titlePanel("Heart scRNA Exploratory Data Tool: mouse MI" ),id = 'navbar'),
   sidebarLayout(
     sidebarPanel(
       width = 3,
       selectInput("dataset",
                   "Dataset:",
-                  choices = c("2019 eLife mouse MI", 
-                              "2020 Circulation mouse TAC"),
+                  choices = "2019 eLife mouse MI",
                   selected = "2019 eLife mouse MI"),
       selectInput("gene",
                   "Gene name:",
@@ -61,7 +60,7 @@ ui <- fluidPage(
       width = 9,
       column(6, plotOutput("DotPlot")),
       column(6, plotOutput("ViolinPlot")),
-      a(href = "https://quarto.org/docs/authoring/article-layout.html#body-column", 
+      a(href = "https://doi.org/10.7554/elife.43882", 
         "Publication Source")
     )
   ),
@@ -72,13 +71,6 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  
-  observeEvent(input$dataset,
-               updateSelectInput(session, "gene", "Gene name:",
-                                 choices = ui_features$gene[ui_features$dataset == input$dataset],
-                                 selected = "Pecam1")
-  )
-  
   
   ## Load data then remove loading screen
   ## Load data (takes long time)
