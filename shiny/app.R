@@ -60,7 +60,9 @@ ui <- fluidPage(
     mainPanel(
       width = 9,
       column(6, plotOutput("DotPlot")),
-      column(6, plotOutput("ViolinPlot"))
+      column(6, plotOutput("ViolinPlot")),
+      a(href = "https://quarto.org/docs/authoring/article-layout.html#body-column", 
+        "Publication Source")
     )
   ),
   
