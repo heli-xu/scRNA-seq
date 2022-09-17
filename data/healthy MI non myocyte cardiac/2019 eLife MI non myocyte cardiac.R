@@ -73,7 +73,9 @@ DimPlot(TIP_MI_hmn, reduction = "tsne", split.by = "sample", label = T)
 
 save(TIP_MI_hmn, file = "clean/TIP_MI_hmn_cluster.rdata")
 
+
 ####id clusters by markers####
+load("clean/TIP_MI_hmn_cluster.rdata")
 
 DefaultAssay(TIP_MI_hmn) <- "RNA"
 
@@ -111,7 +113,7 @@ VlnPlot(TIP_MI_hmn,
 
 FeaturePlot(TIP_MI_hmn,
             reduction = "tsne",
-            features = c("Pecam1","Icam2","Cdh5","Kdr"),
+            features = c("Pecam1","Icam2","Cdh5"),
             sort.cell = TRUE,
             min.cutoff = 'q10',
             label = TRUE)
