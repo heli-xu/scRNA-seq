@@ -10,7 +10,9 @@ editor: visual
 execute: 
   warning: false
   error: false
+  echo: true
   cache: true
+bibliography: references.bib
 ---
 
 ```{r}
@@ -19,21 +21,21 @@ library(Seurat)
 library(ggplot2)
 ```
 
-## Dataset1: postMI mice heart
+## Dataset1: postMI mice heart [@farbehi2019]
 
-[Publication source](https://elifesciences.org/articles/43882)
-
-### Identification of LEC
+### Identification of LEC clusters
 
 The paper did not include cell type information in the dataset, so we will use established markers to define endothelial cells (EC) and lymphatic endothelial cells (LEC).
 
-EC markers used include: Pecam1, Icam2, Cdh5 (code or image to be added)
+Here, we are checking the distribution and expression levels of known EC markers (Pecam1, Icam2, Cdh5) among all clusters of cells to identify EC clusters.
 
-```{r}
-#dependencies 
-```
+![](images/EC%20markers_featureplot.png){fig-align="center"}
 
-Based on the plot, we'll define cluster 2, 7, 9, 12, 15, 18, 19 as EC.
+::: column-page
+![](images/EC%20markers_vlnplot-01.png){fig-align="left" width="800"}
+:::
+
+Based on the plots, we'll define cluster 2, 7, 9, 12, 15, 18, 19 as EC.
 
 Among them, we'll use LEC lineage markers to identify possible LEC populations. Markers used include: Pdpn, Flt4, Prox1, Ackr4, Msr1, Fcgr2b, Lyve1, Fth1
 
@@ -123,6 +125,9 @@ VlnPlot(TIP_MI_LEC,
 
 Taking one step further, we are now looking at the individual LEC cluster separately (note the legend order is different):
 
+::: callout-note
+## Cluster 9
+
 ```{r}
 #| fig-width: 8
 #| fig-height: 7
@@ -135,6 +140,24 @@ VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1",
         group.by = "sample", #split.by doesn't show legend with multiple features
         pt.size=0.1)
 ```
+:::
+
+::: callout-note
+## Cluster 15
+
+```{r}
+#| fig-width: 8
+#| fig-height: 7
+
+VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1", 
+                                "Adgre1", "Adgre5", "Adgrf5", 
+                                "Adgrg1", "Adgrg3", "Adgrl1", 
+                                "Adgrl2", "Adgrl4"),
+        idents = 9,
+        group.by = "sample", #split.by doesn't show legend with multiple features
+        pt.size=0.1)
+```
+:::
 
 ```{r}
 #| fig-width: 8
@@ -149,9 +172,7 @@ VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1",
         pt.size=0.1)
 ```
 
-## Dataset2: postTAC mouse heart
-
-[Publication source](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.043053?url_ver=Z39.88-2003&rfr_id=ori:rid:crossref.org&rfr_dat=cr_pub%20%200pubmed)
+## Dataset2: postTAC mouse heart[@ren2020]
 
 ### Identification of LEC clusters
 
@@ -168,7 +189,7 @@ VlnPlot(EC, features = c("Pdpn","Flt4","Prox1","Ackr4","Msr1","Fcgr2b",
 
 We will include cluster 2, 3 and 8 as LEC and examine the ADGRs in them.
 
-### ADGRs expression in LEC 
+### ADGRs expression in LEC
 
 Again, we'll plot ADGRs in all EC clusters to keep things in perspective.
 
@@ -193,9 +214,7 @@ FeaturePlot(EC,
             min.cutoff = 'q10') 
 ```
 
-The undetectable ADGRs are left out from the plot above. Sub-clusters labels are not shown for better visualization of the expression levels. 
-For the ones with relatively higher expression (Gpr124, GPr125, Emr1, Cd97, Gpr116, Gpr56, Lphn1, Lphn2 and Eltd1), we'll include them for further examination. For the other ones with sporadic expression, we will use violin plot to check the expression levels in different subclusters more directly.
-
+The undetectable ADGRs are left out from the plot above. Sub-clusters labels are not shown for better visualization of the expression levels. For the ones with relatively higher expression (Gpr124, GPr125, Emr1, Cd97, Gpr116, Gpr56, Lphn1, Lphn2 and Eltd1), we'll include them for further examination. For the other ones with sporadic expression, we will use violin plot to check the expression levels in different subclusters more directly.
 
 ```{r}
 #| column: page
@@ -208,9 +227,9 @@ VlnPlot(EC, features = c("Gpr123", "Bai1", "Bai2",
                          'Gpr97', 'Gpr112', 'Gpr114', "Gpr126", "Gpr128", 'Lphn3'))
 ```
 
-We'll include those with >0.5 relative expression levels (arbitrary) in LEC clusters: Gpr113, Gpr97, Gpr126, Lphn3. 
+We'll include those with \>0.5 relative expression levels (arbitrary) in LEC clusters: Gpr113, Gpr97, Gpr126, Lphn3.
 
-After narrowing down the list, we can now visualize expression levels of these ADGRs in different conditions. 
+After narrowing down the list, we can now visualize expression levels of these ADGRs in different conditions.
 
 ```{r}
 
@@ -241,6 +260,9 @@ VlnPlot(TAC_LEC,
 
 Lastly, we'll look at individual LEC cluster to explore possible pattern.
 
+::: callout-note
+## EC2
+
 ```{r}
 #| fig-width: 8
 #| fig-height: 7
@@ -257,6 +279,10 @@ VlnPlot(TAC_LEC,
         idents = "EC2",
         group.by = "condition")
 ```
+:::
+
+::: callout-note
+## EC3
 
 ```{r}
 #| fig-width: 8
@@ -272,6 +298,10 @@ VlnPlot(TAC_LEC,
 ```
 
 Interestingly, both EC2 and EC3 show detectable expression only at baseline (0w) for the ADGRs examined, while EC8 cells express several ADGRs in all 5 different conditions.
+:::
+
+::: callout-note
+## EC8
 
 ```{r}
 #| fig-width: 8
@@ -286,3 +316,4 @@ VlnPlot(TAC_LEC8,
                      "Gpr56", "Gpr97",  'Gpr126', 
                      'Lphn1', 'Lphn2', 'Lphn3', "Eltd1"))
 ```
+:::
