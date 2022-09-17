@@ -1,7 +1,11 @@
 ---
 title: "ADGRs in lymphatic endothelial cells in scRNA-seq datasets"
 author: "Heli Xu"
-format: html
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-fold: true
 editor: visual
 execute: 
   warning: false
@@ -145,11 +149,11 @@ VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1",
         pt.size=0.1)
 ```
 
-##Dataset2: postTAC mouse heart
+## Dataset2: postTAC mouse heart
 
 [Publication source](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.043053?url_ver=Z39.88-2003&rfr_id=ori:rid:crossref.org&rfr_dat=cr_pub%20%200pubmed)
 
-###Identification of LEC clusters
+### Identification of LEC clusters
 
 This dataset contains cell type information, which includes 9 clusters of EC. Here we will use the same LEC markers as before to identify the possible LEC clusters among them.
 
