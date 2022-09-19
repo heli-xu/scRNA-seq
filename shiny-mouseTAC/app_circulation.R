@@ -23,7 +23,7 @@
 }
 
 
-load("R/ui_features.rdata")
+load("R/all_features_TAC.rdata")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -39,29 +39,28 @@ ui <- fluidPage(
   includeHTML("HTML/Header.html"),
   
   # App 
-  div(  titlePanel("Heart scRNA Exploratory Data Tool" ),id = 'navbar'),
+  div(  titlePanel("Heart scRNA Dashboard: mouse TAC" ),id = 'navbar'),
   sidebarLayout(
     sidebarPanel(
       width = 3,
       selectInput("dataset",
                   "Dataset:",
-                  choices = c("2019 eLife mouse MI", 
-                              "2020 Circulation mouse TAC"),
-                  selected = "2019 eLife mouse MI"),
+                  choices = "2020 Circulation mouse TAC",
+                  selected = "2020 Circulation mouse TAC"),
       selectInput("gene",
                   "Gene name:",
-                  choices = " ",
-                  selected = "Pecam1"),
+                  choices = all_features_TAC,
+                  selected = "Myh6"),
       selectInput("cell",
                   "Cell type:",
-                  choices = c("EC", "MP"),
-                  selected = "EC")
+                  choices = c("CM", "EC", "MP"),
+                  selected = "CM")
     ),
     mainPanel(
       width = 9,
       column(6, plotOutput("DotPlot")),
       column(6, plotOutput("ViolinPlot")),
-      a(href = "https://quarto.org/docs/authoring/article-layout.html#body-column", 
+      a(href = "https://doi.org/10.1161/CIRCULATIONAHA.119.043053", 
         "Publication Source")
     )
   ),
@@ -73,24 +72,17 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
-  observeEvent(input$dataset,
-               updateSelectInput(session, "gene", "Gene name:",
-                                 choices = ui_features$gene[ui_features$dataset == input$dataset],
-                                 selected = "Pecam1")
-  )
-  
   
   ## Load data then remove loading screen
   ## Load data (takes long time)
-  load("R/server_data.rdata")
+  load("R/server_data_TAC.rdata")
   
   waiter_hide()
   
   
   output$DotPlot <- renderPlot({
-    object_to_plot = server_data %>% 
-      filter(dataset == input$dataset,
-             cell == input$cell) %>% 
+    object_to_plot = server_data_TAC %>% 
+      filter(cell == input$cell) %>% 
       pull(obj)
     
     
@@ -105,9 +97,8 @@ server <- function(input, output, session) {
   })
   
   output$ViolinPlot <- renderPlot({
-    object_to_plot = server_data %>% 
-      filter(dataset == input$dataset,
-             cell == input$cell) %>% 
+    object_to_plot = server_data_TAC %>% 
+      filter(cell == input$cell) %>% 
       pull(obj)
     
     VlnPlot(object_to_plot[[1]], features = input$gene, pt.size = 0)
