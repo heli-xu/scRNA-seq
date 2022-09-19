@@ -2,7 +2,9 @@ clean/
 raw/
 _freeze/
 quarto_files/
-server_data.rdata
+server_data_MI.rdata
+server_data_TAC.rdata
+server_data_HF.rdata
 
 # History files
 .Rhistory

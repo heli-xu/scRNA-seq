@@ -23,7 +23,7 @@
 }
 
 
-load("R/ui_features.rdata")
+load("R/all_features_MI.rdata")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -39,7 +39,7 @@ ui <- fluidPage(
   includeHTML("HTML/Header.html"),
   
   # App 
-  div(  titlePanel("Heart scRNA Exploratory Data Tool: mouse MI" ),id = 'navbar'),
+  div(  titlePanel("Heart scRNA-Seq Dashboard: mouse MI" ),id = 'navbar'),
   sidebarLayout(
     sidebarPanel(
       width = 3,
@@ -49,7 +49,7 @@ ui <- fluidPage(
                   selected = "2019 eLife mouse MI"),
       selectInput("gene",
                   "Gene name:",
-                  choices = " ",
+                  choices = all_features,
                   selected = "Pecam1"),
       selectInput("cell",
                   "Cell type:",
@@ -74,15 +74,14 @@ server <- function(input, output, session) {
   
   ## Load data then remove loading screen
   ## Load data (takes long time)
-  load("R/server_data.rdata")
+  load("R/server_data_MI.rdata")
   
   waiter_hide()
   
   
   output$DotPlot <- renderPlot({
-    object_to_plot = server_data %>% 
-      filter(dataset == input$dataset,
-             cell == input$cell) %>% 
+    object_to_plot = server_data_MI %>% 
+      filter(cell == input$cell) %>% 
       pull(obj)
     
     
@@ -97,9 +96,8 @@ server <- function(input, output, session) {
   })
   
   output$ViolinPlot <- renderPlot({
-    object_to_plot = server_data %>% 
-      filter(dataset == input$dataset,
-             cell == input$cell) %>% 
+    object_to_plot = server_data_MI %>% 
+      filter(cell == input$cell) %>% 
       pull(obj)
     
     VlnPlot(object_to_plot[[1]], features = input$gene, pt.size = 0)
