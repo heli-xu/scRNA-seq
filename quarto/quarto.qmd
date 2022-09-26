@@ -6,12 +6,14 @@ format:
     toc: true
     code-tools: true
     code-fold: true
+    standalone: true
+    self-contained: true
 editor: visual
 execute: 
   warning: false
   error: false
-  echo: true
-  cache: true
+  echo: true  
+  
 bibliography: references.bib
 ---
 
@@ -28,11 +30,12 @@ library(ggplot2)
 The paper did not include cell type information in the dataset, so we will use established markers to define endothelial cells (EC) and lymphatic endothelial cells (LEC).
 
 Here, we are checking the distribution and expression levels of known EC markers (Pecam1, Icam2, Cdh5) among all clusters of cells to identify EC clusters.
+ 
 
-![](images/EC%20markers_featureplot.png){fig-align="center"}
+![](https://raw.githubusercontent.com/heli-xu/scRNA-seq/main/quarto/images/EC%20markers_featureplot.png){fig-align="center"}
 
 ::: column-page
-![](images/EC%20markers_vlnplot-01.png){fig-align="left" width="800"}
+![](https://raw.githubusercontent.com/heli-xu/scRNA-seq/main/quarto/images/EC%20markers_vlnplot-01.png){fig-align="left" width="800"}
 :::
 
 Based on the plots, we'll define cluster 2, 7, 9, 12, 15, 18, 19 as EC.
