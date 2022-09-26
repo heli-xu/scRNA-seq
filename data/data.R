@@ -22,15 +22,15 @@ load("../data/healthy MI non myocyte cardiac/clean/MI_MP_normalized.rdata") #TIP
 load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_EC_metadata.rdata") #TAC_EC
 load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_MP_metadata.rdata") #TAC_MP
 load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_CM_metadata.rdata")
-load("../data/2020 nat cell biol human normal vs failing heart/clean/human_hmn_CM.rdata")
-load("../data/2020 nat cell biol human normal vs failing heart/clean/human_hmn_EC.rdata")
-load("../data/2020 nat cell biol human normal vs failing heart/clean/human_hmn_MP.rdata")
+load("../data/2020 nat cell biol human normal vs failing heart/clean/human_CM_diet.rdata")
+load("../data/2020 nat cell biol human normal vs failing heart/clean/human_EC_diet.rdata")
+load("../data/2020 nat cell biol human normal vs failing heart/clean/human_MP_diet.rdata")
 
 server_data_all = tibble(
   dataset = c("2019 eLife mouse MI", "2020 Circulation mouse TAC", "2020 NatCellBio human HF"),
-  EC = list(TIP_MI_EC, TAC_EC, human_EC),
-  MP = list(TIP_MI_MP,TAC_MP, human_MP),
-  CM = list(NA, TAC_CM, human_CM)
+  EC = list(TIP_MI_EC, TAC_EC, human_EC_diet),
+  MP = list(TIP_MI_MP,TAC_MP, human_MP_diet),
+  CM = list(NA, TAC_CM, human_CM_diet)
 ) %>% 
   pivot_longer(c(EC,MP,CM), names_to = 'cell', values_to = 'obj')
 
