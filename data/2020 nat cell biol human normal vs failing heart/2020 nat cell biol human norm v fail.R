@@ -118,7 +118,7 @@ VlnPlot(human_HF_no_integ, features = "PC_1", group.by = "group")
 
 
 ####3. Harmony and Clustering####
-load("data/human_normal_HF_metadata.rdata")
+load("clean/human_normal_HF_metadata.rdata")
 
 human_normal_HF_hmn <- NormalizeData(human_normal_HF, verbose = FALSE) %>% 
   FindVariableFeatures(selection.method = "vst", 
@@ -178,19 +178,35 @@ metadata_full %>%
 
 ######4.2 ADGRs of interest in CMs####
 ##subset CM###
-load("data/human_normal_HF_hmn_cluster.rdata")
+load("clean/human_normal_HF_hmn_cluster.rdata")
 
-all_features <- rownames(human_normal_HF_hmn@assays$RNA@data)
+all_features_humanHF <- rownames(human_normal_HF_hmn@assays$RNA@data)
+
+save(all_features_humanHF, file = "clean/all_features_humanHF.rdata")
 
 human_CM <- subset(human_normal_HF_hmn, idents = "CM") %>% 
-  NormalizeData() %>% 
+  #NormalizeData() %>% 
   ScaleData(feature = all_features)
+  #ScaleData()
 
 metadata_cm <- human_CM@meta.data
 
 Idents(human_CM) <- metadata_cm$group
 
 levels(human_CM) <- c("Normal", "HF")
+
+save(human_CM, file="clean/human_hmn_CM.rdata")
+
+###****to reduce size, use DietSeurat to remove raw data counts etc###
+human_CM_diet <- DietSeurat(human_CM, counts = FALSE)
+
+metadata_diet <- human_CM_diet@meta.data
+
+Idents(human_CM_diet) <- metadata_diet$group
+
+levels(human_CM_diet) <- c("Normal", "HF")
+
+save(human_CM_diet, file = "clean/human_CM_diet.rdata")
 
 DoHeatmap(human_CM, 
           features = c("MYH6","MYH7","ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
@@ -200,7 +216,7 @@ DoHeatmap(human_CM,
   theme(text = element_text(size = 20))
 #MYH6 MYH7 are LV and LA markers 
 
-DotPlot(human_CM,
+DotPlot(human_CM_diet,
         features = c("MYH6","ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
                      "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
         col.min = 0, col.max = 3,
@@ -235,7 +251,9 @@ FeaturePlot(human_NCM,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
-#1, 8, 11, 6 EC
+
+VlnPlot(human_NCM, features = c("PECAM1","VWF","FLT1"), pt.size = 0)
+#1, 8, 6, 13, 15 EC
 
 FeaturePlot(human_NCM,
             reduction = "umap", 
@@ -243,6 +261,8 @@ FeaturePlot(human_NCM,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+
+VlnPlot(human_NCM, features = c("DCN", "CDH19"),  pt.size = 0)
 ##4 FB
 
 
@@ -252,7 +272,9 @@ FeaturePlot(human_NCM,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
-# SMC
+
+VlnPlot(human_NCM, features = c("MYH11","MYL9","CASQ2"),  pt.size = 0)
+# SMC 7
 
 FeaturePlot(human_NCM,
             reduction = "umap", 
@@ -260,6 +282,8 @@ FeaturePlot(human_NCM,
             sort.cell = TRUE,
             min.cutoff = 'q10', 
             label = TRUE)
+
+VlnPlot(human_NCM, features = c("CSF1R", "CD14", "C1QC", "FCGR1A"),  pt.size = 0)
 #Myeloid/MP: 10
 
 FeaturePlot(human_NCM,
@@ -269,9 +293,9 @@ FeaturePlot(human_NCM,
             min.cutoff = 'q10', 
             label = TRUE)
 
-human_EC <- subset(human_NCM, idents = c(1, 6, 8, 11))%>% 
-  NormalizeData() %>% 
-  ScaleData(feature = all_features)  #if not assigned, pull from upstream object
+human_EC <- subset(human_NCM, idents = c(1, 8, 6, 13, 15))%>% 
+  #NormalizeData() %>% 
+  ScaleData()  #not assigned features = all_features to reduce size 
 
 
 metadata_EC <- human_EC@meta.data
@@ -280,6 +304,11 @@ Idents(human_EC) <- metadata_EC$group
 
 levels(human_EC) <- c("Normal", "HF")
 
+save(human_EC, file = "clean/human_hmn_EC.rdata")
+
+human_EC_diet <- DietSeurat(human_EC, counts = FALSE)
+save(human_EC_diet, file = "clean/human_EC_diet.rdata")
+
 DoHeatmap(human_EC, 
           features = c("PECAM1","ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
                        "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
@@ -287,11 +316,11 @@ DoHeatmap(human_EC,
   scale_fill_viridis(option = "B", na.value = "white")+ #na.value for white line between groups
   theme(text = element_text(size = 20))
 
-VlnPlot(human_EC, features = "ADGRF5", split.by = "group")
+VlnPlot(human_EC_diet, features = "ADGRF5", split.by = "group")
 VlnPlot(human_EC, features = "ADGRL4", split.by = "group")
 
 
-DotPlot(human_EC,
+DotPlot(human_EC_diet,
         features = c("PECAM1",
           "ADGRF5", "ADGRG1", "ADGRE5", "ADGRA1",
                      "ADGRD1", "ADGRL1", "ADGRL3","ADGRL4"),
@@ -304,8 +333,8 @@ EC_markers <- FindAllMarkers(human_EC, test.use = "MAST")
 
 ####4.4 ADGRs in MP subset####
 human_MP <- subset(human_NCM, idents = 10)%>% 
-  NormalizeData() %>% 
-  ScaleData(feature = all_features)
+  #NormalizeData() %>% 
+  ScaleData()
 
 
 metadata_MP <- human_MP@meta.data
@@ -313,6 +342,11 @@ metadata_MP <- human_MP@meta.data
 Idents(human_MP) <- metadata_MP$group
 
 levels(human_MP) <- c("Normal", "HF")
+
+save(human_MP, file = "clean/human_hmn_MP.rdata")
+
+human_MP_diet <- DietSeurat(human_MP, counts = FALSE)
+save(human_MP_diet, file = "clean/human_MP_diet.rdata")
 
 DoHeatmap(human_MP, 
           features = c("CD14", #CD3D if for T cells
