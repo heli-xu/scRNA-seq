@@ -1,10 +1,11 @@
 library(dplyr)
 library(Seurat)
+library(ggplot2)
 library(Matrix)
 library(tidyverse)
 library(readr)
 library(harmony)
-library(ggplot2)
+
 
 ####import data and clustering####
 
@@ -196,6 +197,11 @@ levels(TIP_MI_EC)
 
 save(TIP_MI_EC, file = "clean/MI_EC_normalized.rdata")
 
+load("clean/MI_EC_normalized.rdata")
+
+MI_EC_diet <- DietSeurat(TIP_MI_EC, counts = FALSE)
+save(MI_EC_diet, file = "clean/MI_EC_diet.rdata")
+
 DotPlot(TIP_MI_EC,
         features = c("Pecam1",
                      "Adgrf5", "Adgrg1", "Adgrl4", "Adgrl2", 
@@ -288,7 +294,8 @@ VlnPlot(TIP_MI_EC, features =c("Adgra2", "Adgra3","Adgrb1",
         idents = 15,
         group.by = "sample",
         pt.size=0.1)
-####subsetting MP####
+
+####subsetting MP#####
 
 TIP_MI_MP <- subset(TIP_MI_hmn, idents = c(0, 4, 10, 11, 13, 14)) %>%  
   NormalizeData() %>% 
@@ -302,7 +309,12 @@ levels(TIP_MI_MP)
 
 save(TIP_MI_MP, file = "clean/MI_MP_normalized.rdata")
 
-DotPlot(TIP_MI_MP,
+load("clean/MI_MP_normalized.rdata")
+
+MI_MP_diet <- DietSeurat(TIP_MI_MP, counts = FALSE)
+save(MI_MP_diet, file = "clean/MI_MP_diet.rdata")
+
+DotPlot(MI_MP_diet,
         features = c(#"Cd14",
                      "Adgrf5", "Adgrg1", "Adgrl4", "Adgrl2", 
                      "Adgre5", "Adgre1", "Adgra2","Adgrd1"),

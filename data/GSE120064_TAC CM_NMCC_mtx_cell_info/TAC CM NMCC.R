@@ -121,8 +121,8 @@ DimPlot(TAC_integrated, reduction = "umap", group.by = "condition")
 
 save(TAC_integrated, file = "data/TAC_integrarted.rdata")
 
-####################################################################
-###Visualization of clusters###
+
+###Visualization of clusters####
 load("data/TAC_integrarted.rdata")
 
 metadata <- TAC_integrated@meta.data 
@@ -289,6 +289,12 @@ save(TAC_CM, file = "data/TAC_CM_metadata.rdata")
 ###with levels as 0w, 2w, 5w, 8w, 11w
 ##scaledata with variable features
 
+#-----diet to trim size---------#
+load("clean/TAC_CM_metadata.rdata")
+
+TAC_CM_diet <- DietSeurat(TAC_CM, counts = FALSE)
+save(TAC_CM_diet, file = "clean/TAC_CM_diet.rdata")
+#--------------------------------#
 
 #cell_0_5w_11w <- metadata %>% 
  # rownames_to_column("cell_id") %>% 
@@ -344,7 +350,7 @@ all_features_TAC <- rownames(TAC_CM@assays$RNA@data)
 save(all_features_TAC, file = "data/all_features_TAC.rdata")
 
 
-#####taking a brief look at FB#####
+####taking a brief look at FB#####
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
 
 TAC_FB <- subset(TAC_CM_NMCC, idents = "FB") %>% 
@@ -373,7 +379,7 @@ DotPlot(TAC_FB,
         col.min = 0, col.max = 3,
         dot.min = 0, dot.scale = 6)
 
-#####ADGRs in EC####
+####ADGRs in EC####
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
 
 TAC_EC <- subset(TAC_CM_NMCC, idents = "EC") %>% 
@@ -389,6 +395,14 @@ Idents(TAC_EC) <- metadata_ec$condition
 levels(TAC_EC) <- c("0w", "2w", "5w", "8w", "11w")
 
 save(TAC_EC, file = "data/TAC_EC_metadata.rdata")
+
+#-----diet to trim size--------#
+load("clean/TAC_EC_metadata.rdata")
+
+TAC_EC_diet <- DietSeurat(TAC_EC, counts = FALSE)
+save(TAC_EC_diet, file = "clean/TAC_EC_diet.rdata")
+#-------------------------------#
+
 
 DoHeatmap(TAC_EC, 
           features = c("Pecam1",
@@ -413,7 +427,7 @@ VlnPlot(TAC_EC, features = "Gpr116")
 VlnPlot(TAC_EC, features = "Eltd1")
 
 
-####LEC exploration####
+#####LEC exploration####
 #continued from above
 
 load("clean/TAC_integrarted_celltype.rdata") 
@@ -520,7 +534,8 @@ VlnPlot(TAC_LEC8,
                      "Gpr56", "Gpr97",  'Gpr126', 
                      'Lphn1', 'Lphn2', 'Lphn3', "Eltd1"))
 
-#####ADGRs in MP####
+
+####ADGRs in MP############
 load("data/TAC_CM_NMCC_metadata_celltype.rdata")
 #with celltype info
 
@@ -539,6 +554,14 @@ Idents(TAC_MP) <- metadata_mp$condition
 levels(TAC_MP) <- c("0w", "2w", "5w", "8w", "11w")
 
 save(TAC_MP, file = "data/TAC_MP_metadata.rdata")
+
+#-----diet to trim size--------#
+load("clean/TAC_MP_metadata.rdata")
+
+TAC_MP_diet <- DietSeurat(TAC_MP, counts = FALSE)
+save(TAC_MP_diet, file = "clean/TAC_MP_diet.rdata")
+#-------------------------------#
+
 
 DoHeatmap(TAC_MP, 
           features = c("Cd14",
@@ -565,7 +588,7 @@ DotPlot(TAC_MP,
 
 VlnPlot(TAC_MP, features = c("Gpr116","Emr1"))
 
-#####ADGRs in T####
+####ADGRs in T#####################
 TAC_T <- subset(TAC_CM_NMCC, idents = "T") %>% 
   NormalizeData() %>% 
   ScaleData() 
