@@ -17,20 +17,20 @@ library(tidyverse)
 
 # 2. Prepare Server object ----(2 mice + 1 human datasets)
 
-load("../data/healthy MI non myocyte cardiac/clean/MI_EC_normalized.rdata") #object name: TIP_MI_EC
-load("../data/healthy MI non myocyte cardiac/clean/MI_MP_normalized.rdata") #TIP_MI_MP
-load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_EC_metadata.rdata") #TAC_EC
-load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_MP_metadata.rdata") #TAC_MP
-load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_CM_metadata.rdata")
+load("../data/healthy MI non myocyte cardiac/clean/MI_EC_diet.rdata") #object name same as file name
+load("../data/healthy MI non myocyte cardiac/clean/MI_MP_diet.rdata") 
+load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_EC_diet.rdata") 
+load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_MP_diet.rdata") 
+load("../data/GSE120064_TAC CM_NMCC_mtx_cell_info/clean/TAC_CM_diet.rdata")
 load("../data/2020 nat cell biol human normal vs failing heart/clean/human_CM_diet.rdata")
 load("../data/2020 nat cell biol human normal vs failing heart/clean/human_EC_diet.rdata")
 load("../data/2020 nat cell biol human normal vs failing heart/clean/human_MP_diet.rdata")
 
 server_data_all = tibble(
   dataset = c("2019 eLife mouse MI", "2020 Circulation mouse TAC", "2020 NatCellBio human HF"),
-  EC = list(TIP_MI_EC, TAC_EC, human_EC_diet),
-  MP = list(TIP_MI_MP,TAC_MP, human_MP_diet),
-  CM = list(NA, TAC_CM, human_CM_diet)
+  EC = list(MI_EC_diet, TAC_EC_diet, human_EC_diet),
+  MP = list(MI_MP_diet,TAC_MP_diet, human_MP_diet),
+  CM = list(NA, TAC_CM_diet, human_CM_diet)
 ) %>% 
   pivot_longer(c(EC,MP,CM), names_to = 'cell', values_to = 'obj')
 
