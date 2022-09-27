@@ -54,7 +54,11 @@ ui <- fluidPage(
       selectInput("cell",
                   "Cell type:",
                   choices = c("EC", "MP"),
-                  selected = "EC")
+                  selected = "EC"),
+      
+      # Button for download data
+      downloadButton("downloadData", "Export dotplot data")
+      
     ),
     mainPanel(
       width = 9,
@@ -103,6 +107,23 @@ server <- function(input, output, session) {
     VlnPlot(object_to_plot[[1]], features = input$gene, pt.size = 0)
     
   })
+  
+  # Downloadable csv of dotplot data
+  output$downloadData <- downloadHandler(
+    filename= function() {
+      paste('MI', ' ', input$cell, ' ', input$gene, '.csv', sep = '')
+    },
+    content = function(file) {
+      object_to_plot = server_data_MI %>% 
+        filter(cell == input$cell) %>% 
+        pull(obj)
+      
+    plot <- DotPlot(object_to_plot[[1]],
+              features = input$gene)
+    
+    write.csv(plot$data, file)
+    }
+  )
 }
 
 # Run the application 
